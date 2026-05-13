@@ -57,7 +57,10 @@ async function seed() {
       passwordHash: '$2a$10$X7vQp1OQY8zP8Gz8Gz8GzO1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q', // "password" hashed
       isActive: true
     })));
-
+    // 8. Seed Modules, Alerts, Teaching Groups
+    await seedCollection('Module', mockDb.modules || []);
+    await seedCollection('Alert', mockDb.alerts || []);
+    await seedCollection('TeachingGroup', mockDb.teachingGroups || []);
     // 2. Seed Courses
     await seedCollection('Course', mockDb.courses);
 

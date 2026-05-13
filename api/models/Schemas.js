@@ -112,6 +112,38 @@ const marketplaceSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// --- Module Schema ---
+const moduleSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  coursePlanId: String,
+  title: String,
+  description: String,
+  order: Number,
+  classes: [mongoose.Schema.Types.Mixed],
+  createdAt: { type: Date, default: Date.now }
+});
+
+// --- Alert Schema ---
+const alertSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  title: String,
+  message: String,
+  type: String,
+  status: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+// --- Teaching Group Schema ---
+const teachingGroupSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  name: String,
+  members: [String],
+  createdAt: { type: Date, default: Date.now }
+});
+
 // Export Models
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 export const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
@@ -121,3 +153,6 @@ export const Evaluation = mongoose.models.Evaluation || mongoose.model('Evaluati
 export const CoursePlan = mongoose.models.CoursePlan || mongoose.model('CoursePlan', coursePlanSchema);
 export const CalendarEvent = mongoose.models.CalendarEvent || mongoose.model('CalendarEvent', calendarEventSchema);
 export const MarketplaceItem = mongoose.models.MarketplaceItem || mongoose.model('MarketplaceItem', marketplaceSchema);
+export const Module = mongoose.models.Module || mongoose.model('Module', moduleSchema);
+export const Alert = mongoose.models.Alert || mongoose.model('Alert', alertSchema);
+export const TeachingGroup = mongoose.models.TeachingGroup || mongoose.model('TeachingGroup', teachingGroupSchema);

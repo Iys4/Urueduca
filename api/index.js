@@ -21,7 +21,10 @@ export default async function handler(req, res) {
         { name: 'CoursePlan', data: mockDb.coursePlans },
         { name: 'Lesson', data: mockDb.lessons },
         { name: 'Evaluation', data: mockDb.evaluations },
-        { name: 'CalendarEvent', data: mockDb.manualEvents }
+        { name: 'CalendarEvent', data: mockDb.manualEvents },
+        { name: 'Module', data: mockDb.modules || [] },
+        { name: 'Alert', data: mockDb.alerts || [] },
+        { name: 'TeachingGroup', data: mockDb.teachingGroups || [] }
       ];
       for (const { name, data } of collections) {
         const Model = Schemas[name];
@@ -69,7 +72,10 @@ export default async function handler(req, res) {
       'evaluations': Schemas.Evaluation,
       'course_plans': Schemas.CoursePlan,
       'calendar_events': Schemas.CalendarEvent,
-      'marketplace': Schemas.MarketplaceItem
+      'marketplace': Schemas.MarketplaceItem,
+      'modules': Schemas.Module,
+      'alerts': Schemas.Alert,
+      'teaching_groups': Schemas.TeachingGroup
     };
 
     if (path.startsWith('/api/crud/')) {
