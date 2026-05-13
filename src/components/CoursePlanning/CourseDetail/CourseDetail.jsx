@@ -118,10 +118,7 @@ const CourseDetail = () => {
                                 <p className="text-2xl font-bold text-primary leading-none">{course.classesCount}</p>
                                 <p className="text-[10px] text-outline uppercase tracking-wider font-bold mt-1">Clases</p>
                             </div>
-                            <div className="text-center">
-                                <p className="text-2xl font-bold text-primary leading-none">{course.completionPercent}%</p>
-                                <p className="text-[10px] text-outline uppercase tracking-wider font-bold mt-1">Completo</p>
-                            </div>
+
                         </div>
                     </div>
                 </div>

@@ -13,10 +13,17 @@ export async function handleCrud(req, res, Model) {
           const item = await Model.findOne({ id, userId });
           return res.status(200).json(item);
         }
-        const items = await Model.find(userId ? { userId } : {});
+        
+        // Build query from remaining query parameters
+        const query = { ...req.query };
+        delete query.id;
+        // Keep userId in query if provided
+        
+        const items = await Model.find(query);
         res.status(200).json(items);
       } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        console.error(`Error in GET ${req.url}:`, error);
+        res.status(500).json({ success: false, error: error.message, stack: error.stack });
       }
       break;
 

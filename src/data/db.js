@@ -1,18 +1,20 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'academic_clarity_db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export const STORES = {
     USERS: 'users',
     STUDENTS: 'students',
     COURSES: 'courses',
     MODULES: 'modules',
-    LESSONS: 'lessons', // lesson_templates & actual lessons combined or separated? We will use unified classes per the current structure.
+    LESSONS: 'lessons',
     TEACHING_GROUPS: 'teaching_groups',
     EVALUATIONS: 'evaluations',
     ALERTS: 'alerts',
     CALENDAR_EVENTS: 'calendar_events',
+    COURSE_PLANS: 'course_plans',
+    MARKETPLACE: 'marketplace',
 };
 
 let dbPromise = null;
@@ -68,6 +70,16 @@ export const getDB = () => {
                             store.createIndex('userId', 'userId', { unique: false });
                         }
                     });
+                }
+                if (oldVersion < 3) {
+                    if (!db.objectStoreNames.contains(STORES.COURSE_PLANS)) {
+                        const cpStore = db.createObjectStore(STORES.COURSE_PLANS, { keyPath: 'id' });
+                        cpStore.createIndex('userId', 'userId', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains(STORES.MARKETPLACE)) {
+                        const mpStore = db.createObjectStore(STORES.MARKETPLACE, { keyPath: 'id' });
+                        mpStore.createIndex('materia', 'materia', { unique: false });
+                    }
                 }
             },
         });

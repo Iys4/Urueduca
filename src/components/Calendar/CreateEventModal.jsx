@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button } from '../Shared';
-import { calendarService } from '../../services/calendarService';
+import { useAppStore } from '../../store/useAppStore';
 
 const EVENT_TYPES = [
     { value: 'reunion', label: 'Reunión', icon: 'groups', color: '#6750a4' },
@@ -10,6 +10,7 @@ const EVENT_TYPES = [
 ];
 
 const CreateEventModal = ({ isOpen, onClose, defaultDate }) => {
+    const addCalendarEvent = useAppStore(state => state.addCalendarEvent);
     const [form, setForm] = useState({
         title: '',
         date: defaultDate ? defaultDate.toISOString().split('T')[0] : '',
@@ -24,14 +25,19 @@ const CreateEventModal = ({ isOpen, onClose, defaultDate }) => {
         setForm(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (e) => {
+        if (e) e.preventDefault();
         if (!form.title || !form.date) return;
         
-        calendarService.createManualEvent(form);
+        await addCalendarEvent({
+            ...form,
+            id: Date.now()
+        });
+        
         setForm({ title: '', date: '', startTime: '', endTime: '', description: '', type: 'reunion', color: '#6750a4' });
         onClose();
     };
+
 
     const handleTypeSelect = (typeVal) => {
         const t = EVENT_TYPES.find(x => x.value === typeVal);

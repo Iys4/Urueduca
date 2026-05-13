@@ -80,15 +80,13 @@ const ModulesTab = ({ coursePlanId, onRefresh }) => {
                             {mod.title}
                         </span>
                     }
-                    subtitle={`${mod.totalClasses} clase${mod.totalClasses !== 1 ? 's' : ''} · ${mod.progressPercent}% completo`}
+                    subtitle={`${mod.totalClasses} clase${mod.totalClasses !== 1 ? 's' : ''}`}
                     badges={
                         <>
                             {mod.evaluationClasses.length > 0 && (
                                 <Badge variant="warning" icon="assignment" className="text-[9px]">{mod.evaluationClasses.length} eval.</Badge>
                             )}
-                            {mod.hasIncomplete && mod.totalClasses > 0 && (
-                                <Badge variant="warning" icon="warning" className="text-[9px]">Incompleto</Badge>
-                            )}
+
                             {mod.totalClasses === 0 && (
                                 <Badge variant="neutral" className="text-[9px]">Vacío</Badge>
                             )}
@@ -105,19 +103,7 @@ const ModulesTab = ({ coursePlanId, onRefresh }) => {
                         />
                     }
                 >
-                    {/* Progress bar */}
-                    {mod.totalClasses > 0 && (
-                        <div className="mb-4">
-                            <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full rounded-full transition-all duration-500 ${
-                                        mod.progressPercent === 100 ? 'bg-tertiary' : 'bg-primary'
-                                    }`}
-                                    style={{ width: `${mod.progressPercent}%` }}
-                                />
-                            </div>
-                        </div>
-                    )}
+
 
                     {/* ─── Mandatory Classes ─── */}
                     <ClassSection

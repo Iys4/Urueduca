@@ -14,7 +14,7 @@ const Dashboard = ({ user }) => {
         const alerts = dashboardService.getPendingAlerts(user.id);
         const courses = dashboardService.getCoursesSummary(user.id);
         const todayLessons = dashboardService.getTodayLessons(user.id);
-        const stats = dashboardService.getQuickStats();
+        const stats = dashboardService.getQuickStats(user.id);
         setData({ nextClass, alerts, courses, todayLessons, stats });
     }, [user.id]);
 
@@ -34,7 +34,7 @@ const Dashboard = ({ user }) => {
             {/* Welcome */}
             <section>
                 <h1 className="text-2xl lg:text-3xl font-bold text-on-surface tracking-tight">
-                    ¡Hola, {user.name.split(' ')[0]}!
+                    ¡Hola, {user?.name?.split(' ')[0] || user?.username || 'Colega'}!
                 </h1>
                 <p className="text-secondary mt-1 capitalize text-sm">
                     {dateString}

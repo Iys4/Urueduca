@@ -21,10 +21,10 @@ export const mockDb = {
     ],
     
     courses: [
-        { id: 401, name: "4to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 25, currentModule: "Célula", moduleProgress: 20, performance: 7.5 },
-        { id: 501, name: "5to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 28, currentModule: "Genética", moduleProgress: 50, performance: 8.2 },
-        { id: 601, name: "6to Biología", institution: "Liceo Javier de Viana", year: 2026, user_id: 1, active: true, studentsCount: 15, currentModule: "Sist. Nervioso", moduleProgress: 10, performance: 8.8 },
-        { id: 502, name: "5to Biology (ENG)", institution: "Bilingual School", year: 2026, user_id: 1, active: true, studentsCount: 12, currentModule: "Cell Biology", moduleProgress: 80, performance: 9.1 }
+        { id: 401, name: "4to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 25, performance: 7.5, coursePlanId: null, completedClasses: [] },
+        { id: 501, name: "5to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 28, performance: 8.2, coursePlanId: null, completedClasses: [] },
+        { id: 601, name: "6to Biología", institution: "Liceo Javier de Viana", year: 2026, user_id: 1, active: true, studentsCount: 15, performance: 8.8, coursePlanId: null, completedClasses: [] },
+        { id: 502, name: "5to Biology (ENG)", institution: "Bilingual School", year: 2026, user_id: 1, active: true, studentsCount: 12, performance: 9.1, coursePlanId: null, completedClasses: [] }
     ],
 
     students: [

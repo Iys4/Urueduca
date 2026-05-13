@@ -1,156 +1,116 @@
-import { mockDb } from '../data/mockDb';
-
-const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+const URUGUAY_HOLIDAYS = [
+    { date: '2026-01-01', title: 'Año Nuevo', type: 'feriado' },
+    { date: '2026-01-06', title: 'Día de los Reyes', type: 'feriado' },
+    { date: '2026-02-16', title: 'Carnaval', type: 'feriado' },
+    { date: '2026-02-17', title: 'Carnaval', type: 'feriado' },
+    { date: '2026-04-02', title: 'Jueves Santo', type: 'feriado' },
+    { date: '2026-04-03', title: 'Viernes Santo', type: 'feriado' },
+    { date: '2026-04-19', title: 'Desembarco de los 33', type: 'feriado' },
+    { date: '2026-05-01', title: 'Día del Trabajador', type: 'feriado' },
+    { date: '2026-05-18', title: 'Batalla de las Piedras', type: 'feriado' },
+    { date: '2026-06-19', title: 'Natalicio de Artigas', type: 'feriado' },
+    { date: '2026-07-18', title: 'Jura de la Constitución', type: 'feriado' },
+    { date: '2026-08-25', title: 'Declaratoria de la Independencia', type: 'feriado' },
+    { date: '2026-10-12', title: 'Día de la Raza', type: 'feriado' },
+    { date: '2026-11-02', title: 'Día de los Difuntos', type: 'feriado' },
+    { date: '2026-12-25', title: 'Navidad', type: 'feriado' },
+];
 
 export const calendarService = {
-    getAggregatedEvents: (month, year, filters) => {
+    getAggregatedEvents: (month, year, filters, data) => {
         let allEvents = [];
+        const { lessons = [], evaluations = [], students = [], calendarEvents = [], courses = [] } = data || {};
 
-        // 1. Classes & Evaluations (from modules)
-        if (filters.classes || filters.evaluations) {
-            mockDb.coursePlans.forEach(cp => {
-                const modules = mockDb.modules.filter(m => m.coursePlanId === cp.id);
-                modules.forEach(mod => {
-                    mod.classes.forEach(cls => {
-                        if (cls.type === 'evaluation' && filters.evaluations && cls.evaluationData?.fecha) {
-                            const dateObj = new Date(cls.evaluationData.fecha);
-                            if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
-                                allEvents.push({
-                                    id: cls.id,
-                                    title: cls.title,
-                                    date: cls.evaluationData.fecha,
-                                    startTime: null,
-                                    endTime: null,
-                                    type: 'evaluation',
-                                    source: 'evaluation',
-                                    linked_entity: { coursePlanId: cp.id, moduleId: mod.id, classId: cls.id, courseName: cp.nombre },
-                                    color: '#d97706', // warning color
-                                    icon: 'assignment'
-                                });
-                            }
-                        } else if (cls.type !== 'evaluation' && filters.classes && cls.scheduledDate) {
-                            const dateObj = new Date(cls.scheduledDate);
-                            if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
-                                allEvents.push({
-                                    id: cls.id,
-                                    title: cls.title,
-                                    date: cls.scheduledDate,
-                                    startTime: null,
-                                    endTime: null,
-                                    type: 'class',
-                                    source: 'classplan',
-                                    linked_entity: { coursePlanId: cp.id, moduleId: mod.id, classId: cls.id, courseName: cp.nombre },
-                                    color: '#2563eb', // primary color
-                                    icon: 'priority_high'
-                                });
-                            }
-                        }
+        // 1. Classes (Lessons logged)
+        if (filters.classes) {
+            lessons.forEach(lesson => {
+                const dateObj = new Date(lesson.date);
+                if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
+                    const course = courses.find(c => String(c.id) === String(lesson.course_id));
+                    allEvents.push({
+                        id: `lesson-${lesson.id}`,
+                        title: `${course?.name || 'Clase'}: ${lesson.topic}`,
+                        date: lesson.date,
+                        type: 'class',
+                        source: 'lesson',
+                        color: '#2563eb',
+                        icon: 'school'
                     });
-                });
+                }
             });
         }
 
-        // 2. Birthdays (Students & Users)
-        if (filters.birthdays) {
-            const addBirthday = (person, typeLabel) => {
-                if (!person.birthdate) return;
-                const bDate = new Date(person.birthdate);
-                if (bDate.getMonth() === month) {
-                    // Create an event for the current year
-                    const eventDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(bDate.getDate() + 1).padStart(2, '0')}`;
+        // 2. Evaluations
+        if (filters.evaluations) {
+            evaluations.forEach(ev => {
+                const dateObj = new Date(ev.date);
+                if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
+                    const course = courses.find(c => String(c.id) === String(ev.course_id));
                     allEvents.push({
-                        id: `bday-${person.id}`,
-                        title: `Cumpleaños de ${person.name}`,
+                        id: `eval-${ev.id}`,
+                        title: `[${ev.type}] ${course?.name || ''}: ${ev.title}`,
+                        date: ev.date,
+                        type: 'evaluation',
+                        source: 'evaluation',
+                        color: '#d97706',
+                        icon: 'assignment'
+                    });
+                }
+            });
+        }
+
+        // 3. Birthdays
+        if (filters.birthdays) {
+            students.forEach(s => {
+                if (!s.birthdate) return;
+                const bDate = new Date(s.birthdate);
+                if (bDate.getUTCMonth() === month) {
+                    const eventDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(bDate.getUTCDate()).padStart(2, '0')}`;
+                    allEvents.push({
+                        id: `bday-${s.id}`,
+                        title: `Cumpleaños de ${s.name}`,
                         date: eventDate,
-                        startTime: null,
-                        endTime: null,
                         type: 'birthday',
                         source: 'birthday',
-                        linked_entity: { personId: person.id, type: typeLabel },
-                        color: '#db2777', // pink color
+                        color: '#db2777',
                         icon: 'cake'
                     });
                 }
-            };
-            
-            mockDb.students.forEach(s => addBirthday(s, 'student'));
-            mockDb.users.forEach(u => addBirthday(u, 'teacher'));
+            });
         }
 
-        // 3. Manual Events
+        // 4. Holidays (Feriados)
+        URUGUAY_HOLIDAYS.forEach(h => {
+            const dateObj = new Date(h.date);
+            if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
+                allEvents.push({
+                    id: `holiday-${h.date}`,
+                    title: h.title,
+                    date: h.date,
+                    type: 'holiday',
+                    source: 'holiday',
+                    color: '#059669', // green
+                    icon: 'flag'
+                });
+            }
+        });
+
+        // 5. Manual Events
         if (filters.manual) {
-            mockDb.manualEvents.forEach(ev => {
+            calendarEvents.forEach(ev => {
                 const dateObj = new Date(ev.date);
                 if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
                     allEvents.push({
-                        id: ev.id,
-                        title: ev.title,
-                        date: ev.date,
-                        startTime: ev.startTime,
-                        endTime: ev.endTime,
-                        type: ev.type,
-                        description: ev.description,
+                        ...ev,
                         source: 'manual',
-                        linked_entity: null,
-                        color: ev.color || '#6750a4',
                         icon: ev.type === 'reunion' ? 'groups' : ev.type === 'recordatorio' ? 'notifications' : 'event'
                     });
                 }
             });
         }
 
-        // 4. Imported Events (Mocked structure)
-        if (filters.imported) {
-            mockDb.importedEvents.forEach(ev => {
-                const dateObj = new Date(ev.date);
-                if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
-                    allEvents.push({
-                        ...ev,
-                        source: 'imported',
-                        icon: 'event_available'
-                    });
-                }
-            });
-        }
-
-        // Sort by date and time
-        return allEvents.sort((a, b) => {
-            if (a.date !== b.date) return a.date.localeCompare(b.date);
-            if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime);
-            return a.startTime ? -1 : 1;
-        });
-    },
-
-    createManualEvent: (data) => {
-        const newEvent = {
-            id: generateId('mev'),
-            title: data.title,
-            date: data.date,
-            startTime: data.startTime || null,
-            endTime: data.endTime || null,
-            description: data.description || '',
-            type: data.type || 'personal',
-            color: data.color || '#6750a4',
-            recurring: data.recurring || null,
-            createdAt: new Date().toISOString().split('T')[0],
-        };
-        mockDb.manualEvents.push(newEvent);
-        return newEvent;
-    },
-
-    importCalendar: (source, events) => {
-        const newEvents = events.map(ev => ({
-            id: generateId('imp'),
-            title: ev.title,
-            date: ev.date,
-            startTime: ev.startTime || null,
-            endTime: ev.endTime || null,
-            description: ev.description || '',
-            type: 'external',
-            color: '#475569', // slate gray
-            calendarSource: source, // 'google', 'outlook', 'ics'
-        }));
-        mockDb.importedEvents = [...mockDb.importedEvents, ...newEvents];
-        return newEvents.length;
+        // Sort by date
+        return allEvents.sort((a, b) => a.date.localeCompare(b.date));
     }
 };
+

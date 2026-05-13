@@ -6,9 +6,10 @@ import {
     studentRepository, 
     lessonRepository, 
     evaluationRepository,
-    calendarRepository 
+    calendarRepository,
+    coursePlanRepository,
 } from '../data/repositories';
-import { seedDatabase } from '../data/seed';
+import { useAuthStore } from './useAuthStore';
 
 export const useAppStore = create((set, get) => ({
     isHydrated: false,
@@ -20,6 +21,7 @@ export const useAppStore = create((set, get) => ({
     lessons: [],
     evaluations: [],
     calendarEvents: [],
+    coursePlans: [],
 
     init: async (userId) => {
         if (!userId) {
@@ -27,15 +29,15 @@ export const useAppStore = create((set, get) => ({
             return;
         }
 
-        // Hydrate store from DB for the specific user
         const [
-            users, // We don't necessarily need all users, but keeping it for compatibility
+            users,
             courses,
             modules,
             students,
             lessons,
             evaluations,
-            calendarEvents
+            calendarEvents,
+            coursePlans,
         ] = await Promise.all([
             userRepository.getAll(),
             courseRepository.getAll(userId),
@@ -43,7 +45,8 @@ export const useAppStore = create((set, get) => ({
             studentRepository.getAll(userId),
             lessonRepository.getAll(userId),
             evaluationRepository.getAll(userId),
-            calendarRepository.getAll(userId)
+            calendarRepository.getAll(userId),
+            coursePlanRepository.getAll(userId),
         ]);
 
         set({
@@ -54,7 +57,8 @@ export const useAppStore = create((set, get) => ({
             lessons,
             evaluations,
             calendarEvents,
-            isHydrated: true
+            coursePlans,
+            isHydrated: true,
         });
     },
 
@@ -66,13 +70,12 @@ export const useAppStore = create((set, get) => ({
             students: [],
             lessons: [],
             evaluations: [],
-            calendarEvents: []
+            calendarEvents: [],
+            coursePlans: [],
         });
     },
 
-    // --- Actions ---
-
-    // Courses
+    // --- Courses ---
     addCourse: async (course) => {
         set({ courses: [...get().courses, course] });
         await courseRepository.add(course);
@@ -82,50 +85,138 @@ export const useAppStore = create((set, get) => ({
         await courseRepository.update(id, data);
     },
 
-    // Modules
+    // --- Modules ---
     updateModule: async (id, data) => {
         set({ modules: get().modules.map(m => m.id === id ? { ...m, ...data } : m) });
         await moduleRepository.update(id, data);
     },
 
-    // Evaluations
+    // --- Students ---
+    addStudent: async (student) => {
+        set({ students: [...get().students, student] });
+        await studentRepository.add(student);
+    },
+    updateStudent: async (id, data) => {
+        set({ students: get().students.map(s => s.id === id ? { ...s, ...data } : s) });
+        await studentRepository.update(id, data);
+    },
+    deleteStudent: async (id) => {
+        set({ students: get().students.filter(s => s.id !== id) });
+        await studentRepository.delete(id);
+    },
+
+    // --- Evaluations ---
+    addEvaluation: async (evaluation) => {
+        const userId = useAuthStore.getState().currentUser?.id || null;
+        const finalEval = { ...evaluation, userId: evaluation.userId || userId };
+        set({ evaluations: [...get().evaluations, finalEval] });
+        await evaluationRepository.add(finalEval);
+    },
     updateEvaluation: async (id, data) => {
         set({ evaluations: get().evaluations.map(e => e.id === id ? { ...e, ...data } : e) });
         await evaluationRepository.update(id, data);
     },
     updateStudentGrade: async (evalId, studentId, gradeData) => {
-        // Optimistic UI
         const evals = get().evaluations;
         const targetEval = evals.find(e => e.id === evalId);
         if (!targetEval) return;
 
-        // Clone and update
+        // 1. Update evaluation grades
         const updatedGrades = { ...targetEval.grades };
         updatedGrades[studentId] = { ...updatedGrades[studentId], ...gradeData };
-        
         const updatedEval = { ...targetEval, grades: updatedGrades };
-        set({ evaluations: evals.map(e => e.id === evalId ? updatedEval : e) });
-
-        // Persist
+        
+        const newEvals = evals.map(e => e.id === evalId ? updatedEval : e);
+        set({ evaluations: newEvals });
         await evaluationRepository.update(evalId, { grades: updatedGrades });
+
+        // 2. Recalculate student average
+        // Filter evaluations for this student's course
+        const student = get().students.find(s => s.id === studentId);
+        if (!student) return;
+
+        const studentEvals = newEvals.filter(e => 
+            String(e.course_id) === String(student.course_id) && 
+            e.grades?.[studentId]?.score !== undefined
+        );
+
+        if (studentEvals.length > 0) {
+            let totalWeightedScore = 0;
+            let totalWeight = 0;
+            
+            studentEvals.forEach(e => {
+                const score = parseFloat(e.grades[studentId].score);
+                const weight = parseFloat(e.weight) || 0;
+                totalWeightedScore += (score * weight);
+                totalWeight += weight;
+            });
+
+            const newAvg = totalWeight > 0 ? (totalWeightedScore / totalWeight) : 0;
+            
+            set({ students: get().students.map(s => s.id === studentId ? { ...s, avg: newAvg } : s) });
+            await studentRepository.update(studentId, { avg: newAvg });
+        }
     },
 
-    // Lessons (Attendance)
+    // --- Lessons (Attendance) ---
+    addLesson: async (lesson) => {
+        const userId = useAuthStore.getState().currentUser?.id || null;
+        const finalLesson = { ...lesson, userId: lesson.userId || userId };
+        set({ lessons: [...get().lessons, finalLesson] });
+        await lessonRepository.add(finalLesson);
+    },
     updateLessonAttendance: async (lessonId, studentId, present) => {
         const lessons = get().lessons;
         const targetLesson = lessons.find(l => l.id === lessonId);
         if (!targetLesson) return;
-
         const updatedAttendance = { ...targetLesson.attendance };
-        if (present) {
-            updatedAttendance[studentId] = 'presente';
-        } else {
-            updatedAttendance[studentId] = 'ausente';
-        }
-
+        updatedAttendance[studentId] = present ? 'presente' : 'ausente';
         const updatedLesson = { ...targetLesson, attendance: updatedAttendance, attendanceCompleted: true };
         set({ lessons: lessons.map(l => l.id === lessonId ? updatedLesson : l) });
-
         await lessonRepository.update(lessonId, { attendance: updatedAttendance, attendanceCompleted: true });
-    }
+    },
+
+    // --- Course Plans ---
+    addCoursePlan: async (plan) => {
+        set({ coursePlans: [...get().coursePlans, plan] });
+        await coursePlanRepository.add(plan);
+    },
+    updateCoursePlan: async (id, data) => {
+        set({ coursePlans: get().coursePlans.map(cp => cp.id === id ? { ...cp, ...data } : cp) });
+        await coursePlanRepository.update(id, data);
+    },
+    deleteCoursePlan: async (id) => {
+        set({ coursePlans: get().coursePlans.filter(cp => cp.id !== id) });
+        await coursePlanRepository.delete(id);
+    },
+
+    // --- Group ↔ CoursePlan progress ---
+    assignCoursePlan: async (courseId, coursePlanId) => {
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, coursePlanId, completedClasses: [] } : c) });
+        await courseRepository.update(courseId, { coursePlanId, completedClasses: [] });
+    },
+    markClassCompleted: async (courseId, classId) => {
+        const course = get().courses.find(c => c.id === courseId);
+        if (!course) return;
+        const completed = [...(course.completedClasses || [])];
+        if (!completed.includes(classId)) completed.push(classId);
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, completedClasses: completed } : c) });
+        await courseRepository.update(courseId, { completedClasses: completed });
+    },
+    unmarkClassCompleted: async (courseId, classId) => {
+        const course = get().courses.find(c => c.id === courseId);
+        if (!course) return;
+        const completed = (course.completedClasses || []).filter(id => id !== classId);
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, completedClasses: completed } : c) });
+        await courseRepository.update(courseId, { completedClasses: completed });
+    },
+    
+    // --- Calendar Events ---
+    addCalendarEvent: async (event) => {
+        const userId = useAuthStore.getState().currentUser?.id || null;
+        const finalEvent = { ...event, userId: event.userId || userId };
+        set({ calendarEvents: [...get().calendarEvents, finalEvent] });
+        await calendarRepository.add(finalEvent);
+    },
 }));
+

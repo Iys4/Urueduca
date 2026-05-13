@@ -7,6 +7,7 @@ const navItems = [
     { to: '/',            icon: 'space_dashboard', label: 'Panel',         end: true },
     { to: '/groups',      icon: 'groups',          label: 'Mis Grupos',    end: false },
     { to: '/planning',    icon: 'event_note',      label: 'Planificación', end: false },
+    { to: '/students',    icon: 'person',          label: 'Alumnos',       end: false },
     { to: '/calendar',    icon: 'calendar_month',  label: 'Calendario',    end: false },
 ];
 

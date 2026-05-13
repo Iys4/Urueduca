@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import GroupCard from './GroupCard';
 import { dashboardService } from '../../services/dashboardService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useAppStore } from '../../store/useAppStore';
+import NewGroupModal from './NewGroupModal';
 
 const GroupsDashboard = () => {
     const [groups, setGroups] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const currentUser = useAuthStore(state => state.currentUser);
+    const courses = useAppStore(state => state.courses);
 
     useEffect(() => {
-        const data = dashboardService.getGroupsViewData(1);
-        setGroups(data);
-    }, []);
+        if (currentUser) {
+            const data = dashboardService.getGroupsViewData(currentUser.id);
+            setGroups(data);
+        }
+    }, [currentUser, courses]);
 
     const filteredGroups = groups.filter(g => {
         const matchesSearch = g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,8 +43,18 @@ const GroupsDashboard = () => {
                         {todayCount > 0 && <span className="text-primary font-semibold"> · {todayCount} con clase hoy</span>}
                     </p>
                 </div>
+                
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-on-primary px-4 py-2 rounded-xl transition-colors font-medium text-sm shadow-sm whitespace-nowrap"
+                >
+                    <span className="material-symbols-outlined text-[20px]">add</span>
+                    Crear Grupo
+                </button>
+            </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-4">
                     {/* Search */}
                     <div className="relative flex-1 sm:flex-none">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
@@ -68,9 +87,8 @@ const GroupsDashboard = () => {
                         ))}
                     </div>
                 </div>
-            </div>
 
-            {/* Grid */}
+
             {filteredGroups.length === 0 ? (
                 <div className="text-center py-16">
                     <span className="material-symbols-outlined text-[48px] text-outline mb-3">search_off</span>
@@ -83,6 +101,11 @@ const GroupsDashboard = () => {
                     ))}
                 </div>
             )}
+
+            <NewGroupModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
         </div>
     );
 };
