@@ -206,7 +206,7 @@ const CoursePlanningDashboard = () => {
                     <div className="flex items-center gap-3 p-4 bg-primary-container/30 border border-primary/20 rounded-xl">
                         <span className="material-symbols-outlined text-[24px] text-primary">storefront</span>
                         <p className="text-sm text-on-surface-variant">
-                            Planificaciones compartidas por otros profesores. Clonalas a tus planificaciones para editarlas libremente.
+                            Clases individuales y recursos pedagógicos compartidos por otros profesores. Clonalos y editalos libremente.
                         </p>
                     </div>
 

@@ -195,5 +195,32 @@ export const mockDb = {
         { id: 2, name: 'Carlos Biólogo', email: 'carlos@edu.uy' }
     ],
     
+    marketplace: [
+        {
+            id: 'mp-bio-res-1',
+            nombre: 'Práctica: Extracción de ADN',
+            descripcion: 'Guía completa para realizar una extracción casera de ADN usando frutillas y alcohol. Ideal para introducir genética.',
+            materia: 'Biología',
+            grado: '5°',
+            metodologia: 'Aprendizaje Basado en Proyectos (ABP)',
+            actividades: 'Laboratorio práctico, Informe en grupos',
+            author: 'Ana García',
+            rating: 4.8,
+            createdAt: '2026-04-10'
+        },
+        {
+            id: 'mp-bio-res-2',
+            nombre: 'Debate: Evolución vs Creacionismo',
+            descripcion: 'Material y roles asignados para organizar un debate sobre las teorías del origen de las especies.',
+            materia: 'Biología',
+            grado: '5°',
+            metodologia: 'Juego de roles, Debate estructurado',
+            actividades: 'Preparación de argumentos, Debate oral, Reflexión escrita',
+            author: 'Carlos Biólogo',
+            rating: 4.5,
+            createdAt: '2026-04-15'
+        }
+    ],
+
     stats: { performance: 8.0, pendingEvals: 1, totalStudents: 80, plannedSessions: 2, attendanceRate: 90 }
 };

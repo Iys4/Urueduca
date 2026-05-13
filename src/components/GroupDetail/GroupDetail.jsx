@@ -6,6 +6,7 @@ import HistoryTab from './Tabs/HistoryTab';
 import PlanningTab from './Tabs/PlanningTab';
 import EvaluationsTab from './Tabs/EvaluationsTab';
 import RosterTab from './Tabs/RosterTab';
+import ScheduleTab from './Tabs/ScheduleTab';
 import { useAppStore } from '../../store/useAppStore';
 
 const GroupDetail = () => {
@@ -56,6 +57,7 @@ const GroupDetail = () => {
         { label: 'Planificación',   path: 'planning',    icon: 'event_note' },
         { label: 'Evaluaciones',    path: 'evaluations', icon: 'assignment',    badge: pendingCount > 0 ? pendingCount : null },
         { label: 'Alumnos',         path: 'roster',      icon: 'people',        badge: students.length },
+        { label: 'Horarios',        path: 'schedule',    icon: 'schedule' },
     ];
 
     return (
@@ -107,6 +109,7 @@ const GroupDetail = () => {
                     <Route path="planning" element={<PlanningTab groupId={id} />} />
                     <Route path="evaluations" element={<EvaluationsTab groupId={id} />} />
                     <Route path="roster" element={<RosterTab groupId={id} />} />
+                    <Route path="schedule" element={<ScheduleTab groupId={id} />} />
                     <Route path="*" element={<Navigate to="" replace />} />
                 </Routes>
             </div>

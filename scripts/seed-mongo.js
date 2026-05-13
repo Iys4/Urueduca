@@ -61,6 +61,7 @@ async function seed() {
     await seedCollection('Module', mockDb.modules || []);
     await seedCollection('Alert', mockDb.alerts || []);
     await seedCollection('TeachingGroup', mockDb.teachingGroups || []);
+    await seedCollection('MarketplaceItem', mockDb.marketplace || []);
     // 2. Seed Courses
     await seedCollection('Course', mockDb.courses);
 

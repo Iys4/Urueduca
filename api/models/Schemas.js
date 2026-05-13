@@ -20,14 +20,17 @@ const courseSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   userId: { type: String, required: true },
   name: { type: String, required: true },
+  institution: String,
   grade: String,
   section: String,
-  schedule: [String],
+  schedule: [mongoose.Schema.Types.Mixed], // { day: String, startTime: String, endTime: String }
   color: String,
   studentCount: { type: Number, default: 0 },
   coursePlanId: String,
   completedClasses: [String],
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  active: { type: Boolean, default: true },
+  performance: { type: Number, default: 0 }
 });
 
 // --- Student Schema ---
@@ -78,6 +81,8 @@ const coursePlanSchema = new mongoose.Schema({
   descripcion: String,
   grado: String,
   asignatura: String,
+  metodologia: String,
+  actividades: String,
   modules: [mongoose.Schema.Types.Mixed],
   createdAt: { type: Date, default: Date.now }
 });
@@ -103,10 +108,10 @@ const marketplaceSchema = new mongoose.Schema({
   descripcion: String,
   materia: String,
   grado: String,
-  precio: Number,
+  metodologia: String,
+  actividades: String,
   author: String,
   rating: Number,
-  ventas: Number,
   image: String,
   userId: String, // If someone uploads their own
   createdAt: { type: Date, default: Date.now }

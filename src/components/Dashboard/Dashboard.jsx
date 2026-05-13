@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import NextClassCard from './NextClassCard';
 import AlertsWidget from './AlertsWidget';
 import CoursesSummary from './CoursesSummary';
-import AgendaWidget from './AgendaWidget';
+import UpcomingEventsWidget from './UpcomingEventsWidget';
 import QuickStats from './QuickStats';
 import { dashboardService } from '../../services/dashboardService';
 
@@ -14,8 +14,9 @@ const Dashboard = ({ user }) => {
         const alerts = dashboardService.getPendingAlerts(user.id);
         const courses = dashboardService.getCoursesSummary(user.id);
         const todayLessons = dashboardService.getTodayLessons(user.id);
+        const upcomingEvents = dashboardService.getUpcomingEvents(user.id);
         const stats = dashboardService.getQuickStats(user.id);
-        setData({ nextClass, alerts, courses, todayLessons, stats });
+        setData({ nextClass, alerts, courses, todayLessons, upcomingEvents, stats });
     }, [user.id]);
 
     if (!data) return (
@@ -26,7 +27,7 @@ const Dashboard = ({ user }) => {
         </div>
     );
 
-    const { nextClass, alerts, courses, todayLessons, stats } = data;
+    const { nextClass, alerts, courses, upcomingEvents, stats } = data;
     const dateString = new Date().toLocaleDateString('es-UY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     return (
@@ -51,7 +52,7 @@ const Dashboard = ({ user }) => {
                     <CoursesSummary courses={courses} />
                 </div>
                 <div className="w-full lg:w-[320px] space-y-6 shrink-0">
-                    <AgendaWidget lessons={todayLessons} />
+                    <UpcomingEventsWidget events={upcomingEvents} />
                     <QuickStats stats={stats} />
                 </div>
             </div>

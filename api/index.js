@@ -24,7 +24,8 @@ export default async function handler(req, res) {
         { name: 'CalendarEvent', data: mockDb.manualEvents },
         { name: 'Module', data: mockDb.modules || [] },
         { name: 'Alert', data: mockDb.alerts || [] },
-        { name: 'TeachingGroup', data: mockDb.teachingGroups || [] }
+        { name: 'TeachingGroup', data: mockDb.teachingGroups || [] },
+        { name: 'MarketplaceItem', data: mockDb.marketplace || [] }
       ];
       for (const { name, data } of collections) {
         const Model = Schemas[name];

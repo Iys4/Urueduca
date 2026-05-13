@@ -45,6 +45,7 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
     const validate = () => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'El nombre es obligatorio';
+        if (!formData.birthdate) newErrors.birthdate = 'La fecha de nacimiento es obligatoria';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -57,7 +58,7 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
             ...formData,
             id: initialData?.id || Date.now(),
             userId: currentUser.id,
-            age: formData.age ? parseInt(formData.age) : null,
+            age: null, // Legacy, not used anymore
             course_id: formData.course_id ? parseInt(formData.course_id) : null,
             avg: initialData?.avg || 0, // Default for new students
             updatedAt: new Date().toISOString()
@@ -101,29 +102,17 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
                         {errors.name && <p className="text-[10px] text-error font-medium px-1">{errors.name}</p>}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* Age */}
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Edad (Opcional)</label>
-                            <input
-                                type="number"
-                                className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                                placeholder="Ej: 15"
-                                value={formData.age}
-                                onChange={e => setFormData({ ...formData, age: e.target.value })}
-                            />
-                        </div>
-
-                        {/* Birthdate */}
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Fecha de Nacimiento</label>
-                            <input
-                                type="date"
-                                className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                                value={formData.birthdate || ''}
-                                onChange={e => setFormData({ ...formData, birthdate: e.target.value })}
-                            />
-                        </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Fecha de Nacimiento *</label>
+                        <input
+                            type="date"
+                            className={`w-full px-4 py-2.5 bg-surface border rounded-xl text-sm focus:outline-none transition-all ${
+                                errors.birthdate ? 'border-error ring-1 ring-error/20' : 'border-outline-variant focus:border-primary focus:ring-4 focus:ring-primary/10'
+                            }`}
+                            value={formData.birthdate || ''}
+                            onChange={e => setFormData({ ...formData, birthdate: e.target.value })}
+                        />
+                        {errors.birthdate && <p className="text-[10px] text-error font-medium px-1">{errors.birthdate}</p>}
                     </div>
 
                     {/* Group */}

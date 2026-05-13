@@ -41,7 +41,7 @@ const MarketplaceCard = ({ plan, onClone, alreadyCloned }) => {
                 </div>
             </div>
 
-            {/* Body */}
+                {/* Body */}
             <div className="p-5 flex-1 flex flex-col gap-3">
                 {plan.descripcion && (
                     <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
@@ -49,16 +49,20 @@ const MarketplaceCard = ({ plan, onClone, alreadyCloned }) => {
                     </p>
                 )}
 
-                {/* Stats */}
-                <div className="flex items-center gap-4 text-xs text-on-surface-variant">
-                    <span className="inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[15px] text-outline">view_module</span>
-                        <span className="font-semibold text-on-surface">{modulesCount}</span> módulos
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[15px] text-outline">class</span>
-                        <span className="font-semibold text-on-surface">{classesCount}</span> clases
-                    </span>
+                {/* Pedagogy */}
+                <div className="flex flex-col gap-2 mt-1">
+                    {plan.metodologia && (
+                        <div className="flex items-start gap-2 text-xs">
+                            <span className="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">psychology</span>
+                            <span className="text-on-surface-variant"><span className="font-semibold text-on-surface">Metodología:</span> {plan.metodologia}</span>
+                        </div>
+                    )}
+                    {plan.actividades && (
+                        <div className="flex items-start gap-2 text-xs">
+                            <span className="material-symbols-outlined text-[16px] text-tertiary shrink-0 mt-0.5">extension</span>
+                            <span className="text-on-surface-variant"><span className="font-semibold text-on-surface">Actividades:</span> {plan.actividades}</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Author */}
@@ -83,7 +87,7 @@ const MarketplaceCard = ({ plan, onClone, alreadyCloned }) => {
                     <span className="material-symbols-outlined text-[18px]">
                         {alreadyCloned ? 'check_circle' : 'file_copy'}
                     </span>
-                    {alreadyCloned ? 'Ya la tenés' : 'Usar esta planificación'}
+                    {alreadyCloned ? 'Ya lo tenés' : 'Usar este recurso'}
                 </button>
             </div>
         </div>

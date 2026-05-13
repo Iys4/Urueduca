@@ -175,5 +175,92 @@ export const dashboardService = {
         const totalEvals    = state.evaluations.filter(e => courseIds.has(e.course_id)).length;
 
         return { totalStudents, totalLessons, totalEvals };
+    },
+
+    getUpcomingEvents: (userId = 1) => {
+        const state = useAppStore.getState();
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+
+        const events = [];
+
+        // 1. Next Class
+        const todayLessons = dashboardService.getTodayLessons(userId);
+        const nextClass = dashboardService.getNextClass(userId);
+        if (nextClass) {
+            events.push({
+                type: 'class',
+                title: nextClass.courseName,
+                subtitle: `${nextClass.start_time} - ${nextClass.end_time}`,
+                date: new Date(),
+                icon: 'school',
+                color: 'text-primary'
+            });
+        }
+
+        // 2. Upcoming Birthdays (next 7 days)
+        const userCourses = state.courses.filter(c => c.userId === userId);
+        const courseIds = new Set(userCourses.map(c => c.id));
+        const students = state.students.filter(s => courseIds.has(s.course_id) && s.birthdate);
+        
+        students.forEach(s => {
+            const bDate = new Date(s.birthdate);
+            const bThisYear = new Date(today.getFullYear(), bDate.getMonth(), bDate.getDate());
+            if (bThisYear >= today && bThisYear <= nextWeek) {
+                events.push({
+                    type: 'birthday',
+                    title: `Cumpleaños de ${s.name}`,
+                    subtitle: bThisYear.toLocaleDateString('es-UY', { day: 'numeric', month: 'short' }),
+                    date: bThisYear,
+                    icon: 'cake',
+                    color: 'text-tertiary'
+                });
+            }
+        });
+
+        // 3. Next Exam (next 7 days)
+        const evals = state.evaluations.filter(e => courseIds.has(e.course_id) && e.status === 'upcoming');
+        evals.forEach(e => {
+            const eDate = new Date(e.date);
+            if (eDate >= today && eDate <= nextWeek) {
+                const courseName = state.courses.find(c => c.id === e.course_id)?.name || 'Grupo';
+                events.push({
+                    type: 'exam',
+                    title: `${e.type} en ${courseName}`,
+                    subtitle: eDate.toLocaleDateString('es-UY', { day: 'numeric', month: 'short' }),
+                    date: eDate,
+                    icon: 'assignment',
+                    color: 'text-error'
+                });
+            }
+        });
+
+        // 4. Holidays (Static List for Uruguay)
+        const currentYear = today.getFullYear();
+        const holidays = [
+            { date: new Date(currentYear, 0, 1), name: "Año Nuevo" },
+            { date: new Date(currentYear, 4, 1), name: "Día de los Trabajadores" },
+            { date: new Date(currentYear, 5, 19), name: "Natalicio de Artigas" },
+            { date: new Date(currentYear, 6, 18), name: "Jura de la Constitución" },
+            { date: new Date(currentYear, 7, 25), name: "Declaratoria de la Independencia" },
+            { date: new Date(currentYear, 11, 25), name: "Navidad" }
+        ];
+
+        holidays.forEach(h => {
+            if (h.date >= today && h.date <= nextWeek) {
+                events.push({
+                    type: 'holiday',
+                    title: `Feriado: ${h.name}`,
+                    subtitle: h.date.toLocaleDateString('es-UY', { day: 'numeric', month: 'short' }),
+                    date: h.date,
+                    icon: 'event_busy',
+                    color: 'text-secondary'
+                });
+            }
+        });
+
+        // Sort events by date
+        return events.sort((a, b) => a.date - b.date);
     }
 };

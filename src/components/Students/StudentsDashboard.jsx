@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button, Badge, EmptyState } from '../Shared';
 import NewStudentModal from './NewStudentModal';
+import { calculateAge } from '../../utils/dateHelpers';
 
 const StudentsDashboard = () => {
     const students = useAppStore(state => state.students);
@@ -110,7 +111,7 @@ const StudentsDashboard = () => {
                                             </Badge>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-secondary hidden sm:table-cell">
-                                            {student.age || '-'} años
+                                            {calculateAge(student.birthdate)} años
                                         </td>
                                         <td className="px-6 py-4 hidden md:table-cell">
                                             <div className="flex items-center gap-1.5">
