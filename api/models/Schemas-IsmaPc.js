@@ -2,16 +2,12 @@ import mongoose from 'mongoose';
 
 // --- User Schema ---
 const userSchema = new mongoose.Schema({
-  id: { type: String, unique: true, sparse: true },
-  username: { type: String, unique: true, sparse: true },
-  name: { type: String },
+  id: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String }, // Legacy field
-  passwordHash: { type: String }, // New hashed field
+  password: { type: String, required: true }, // Simple for now, ideally hashed
   avatar: String,
   role: { type: String, default: 'teacher' },
-  isActive: { type: Boolean, default: true },
-  lastLoginAt: Date,
   createdAt: { type: Date, default: Date.now }
 });
 

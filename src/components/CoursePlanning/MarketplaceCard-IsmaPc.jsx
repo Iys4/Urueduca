@@ -1,0 +1,93 @@
+import React from 'react';
+import { Badge } from '../Shared';
+
+const materiaColors = {
+    'Biología':             'bg-tertiary-container text-on-tertiary-container',
+    'Historia':             'bg-secondary-container text-on-secondary-container',
+    'Matemática':           'bg-primary-container text-on-primary-container',
+    'Física':               'bg-error-container text-on-error-container',
+    'Química':              'bg-tertiary-container text-on-tertiary-container',
+    'Literatura':           'bg-secondary-container text-on-secondary-container',
+    'Geografía':            'bg-primary-container text-on-primary-container',
+};
+
+const materiaIcons = {
+    'Biología':   'biotech',
+    'Historia':   'history_edu',
+    'Matemática': 'calculate',
+    'Física':     'science',
+    'Química':    'science',
+    'Literatura': 'menu_book',
+    'Geografía':  'public',
+};
+
+const MarketplaceCard = ({ plan, onClone, alreadyCloned }) => {
+    const colorClass = materiaColors[plan.materia] || 'bg-surface-container text-on-surface-variant';
+    const icon       = materiaIcons[plan.materia] || 'auto_stories';
+
+    const modulesCount = (plan.modules || []).length;
+    const classesCount = (plan.modules || []).reduce((sum, m) => sum + (m.classes || []).length, 0);
+
+    return (
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
+            {/* Color header strip */}
+            <div className={`${colorClass} px-5 py-4 flex items-start gap-3`}>
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[22px]">{icon}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm leading-tight line-clamp-2">{plan.nombre}</h3>
+                    <p className="text-[11px] opacity-80 mt-0.5">{plan.materia} · {plan.año}</p>
+                </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 flex-1 flex flex-col gap-3">
+                {plan.descripcion && (
+                    <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
+                        {plan.descripcion}
+                    </p>
+                )}
+
+                {/* Stats */}
+                <div className="flex items-center gap-4 text-xs text-on-surface-variant">
+                    <span className="inline-flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[15px] text-outline">view_module</span>
+                        <span className="font-semibold text-on-surface">{modulesCount}</span> módulos
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[15px] text-outline">class</span>
+                        <span className="font-semibold text-on-surface">{classesCount}</span> clases
+                    </span>
+                </div>
+
+                {/* Author */}
+                <div className="flex items-center gap-2 pt-1 border-t border-outline-variant">
+                    <div className="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-[14px] text-on-primary-container">person</span>
+                    </div>
+                    <span className="text-[11px] text-outline truncate">{plan.ownerName || 'Anónimo'}</span>
+                    <span className="text-[11px] text-outline ml-auto shrink-0">{plan.updatedAtRelative}</span>
+                </div>
+
+                {/* Action */}
+                <button
+                    onClick={() => !alreadyCloned && onClone?.(plan.id)}
+                    disabled={alreadyCloned}
+                    className={`w-full mt-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        alreadyCloned
+                            ? 'bg-surface-container text-outline cursor-default'
+                            : 'bg-primary text-on-primary hover:bg-primary-hover active:scale-95'
+                    }`}
+                >
+                    <span className="material-symbols-outlined text-[18px]">
+                        {alreadyCloned ? 'check_circle' : 'file_copy'}
+                    </span>
+                    {alreadyCloned ? 'Ya la tenés' : 'Usar esta planificación'}
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default MarketplaceCard;

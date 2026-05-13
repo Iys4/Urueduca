@@ -1,6 +1,6 @@
 import { STORES } from '../db';
 
-const API_BASE = '/api';
+const API_BASE = '/api/crud';
 
 export class BaseRepository {
     constructor(storeName) {
