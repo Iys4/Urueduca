@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Primary (Blue) ─── */
+  --color-primary: #1a56db;
+  --color-primary-hover: #1648b8;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #dbe1ff;
+  --color-on-primary-container: #00174d;
+  --color-primary-fixed: #dbe1ff;
+  --color-primary-fixed-dim: #b3c3ff;
+  --color-on-primary-fixed: #00174d;
+
+  /* ─── Secondary (Neutral warm) ─── */
+  --color-secondary: #5c5f60;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e1e2e4;
+  --color-on-secondary-container: #606365;
+
+  /* ─── Tertiary / Success (Green) ─── */
+  --color-tertiary: #006d44;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #a8f5c8;
+  --color-on-tertiary-container: #002113;
+  --color-success: #006d44;
+  --color-success-container: #a8f5c8;
+  --color-on-success-container: #002113;
+
+  /* ─── Warning (Amber) ─── */
+  --color-warning: #7c5800;
+  --color-warning-container: #ffdea6;
+  --color-on-warning-container: #261900;
+
+  /* ─── Error (Red) ─── */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #410002;
+
+  /* ─── Surfaces ─── */
+  --color-background: #f8f9fc;
+  --color-on-background: #1a1c1e;
+  --color-surface: #f8f9fc;
+  --color-on-surface: #1a1c1e;
+  --color-surface-variant: #e0e3eb;
+  --color-on-surface-variant: #44474e;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f3f7;
+  --color-surface-container: #eceef2;
+  --color-surface-container-high: #e6e8ed;
+  --color-surface-container-highest: #e0e2e7;
+
+  /* ─── Outlines ─── */
+  --color-outline: #74777f;
+  --color-outline-variant: #c4c6d0;
+
+  /* ─── Typography ─── */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Base ─── */
+@layer base {
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+    line-height: 1;
+  }
+}
+
+/* ─── Scrollbar ─── */
+@layer base {
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
+}
+
+/* ─── Sidebar hide on mobile ─── */
+@media (max-width: 1023px) {
+  .sidebar-desktop { display: none !important; }
+  .main-area { margin-left: 0 !important; }
+}
+@media (min-width: 1024px) {
+  .bottom-nav-mobile { display: none !important; }
+}
+
+/* ─── Skeleton loading animation ─── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-container) 25%, var(--color-surface-container-low) 50%, var(--color-surface-container) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Focus ring ─── */
+@layer utilities {
+  .focus-ring {
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* ─── Modal / Dropdown animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
