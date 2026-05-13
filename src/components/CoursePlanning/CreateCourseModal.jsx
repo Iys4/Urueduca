@@ -10,7 +10,7 @@ const materiaOptions = [
     'Inglés', 'Educación Ciudadana', 'Informática', 'Otra'
 ];
 
-const CreateCourseModal = ({ isOpen, onClose, onCreated, userId, ownerName }) => {
+const CreateCourseModal = ({ isOpen, onClose, onCreated }) => {
     const [form, setForm] = useState({ nombre: '', año: '', materia: '', descripcion: '' });
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
@@ -46,13 +46,12 @@ const CreateCourseModal = ({ isOpen, onClose, onCreated, userId, ownerName }) =>
         setTouched({ nombre: true, año: true, materia: true, descripcion: true });
 
         if (Object.keys(errs).length === 0) {
-            coursePlanService.create({ ...form, ownerName }, userId).then(newCourse => {
-                onCreated?.(newCourse);
-                setForm({ nombre: '', año: '', materia: '', descripcion: '' });
-                setTouched({});
-                setErrors({});
-                onClose();
-            });
+            const newCourse = coursePlanService.create(form);
+            onCreated(newCourse);
+            setForm({ nombre: '', año: '', materia: '', descripcion: '' });
+            setTouched({});
+            setErrors({});
+            onClose();
         }
     };
 

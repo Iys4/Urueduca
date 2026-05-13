@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import MonthView from './MonthView';
 import CreateEventModal from './CreateEventModal';
 import ImportCalendarModal from './ImportCalendarModal';
 import EventQuickView from './EventQuickView';
 import { calendarService } from '../../services/calendarService';
 import { Button } from '../Shared';
-import { useAppStore } from '../../store/useAppStore';
 
 const FILTER_TYPES = [
     { id: 'classes', label: 'Clases', color: 'bg-primary' },
@@ -45,22 +43,13 @@ const CalendarHub = () => {
     const goToday = () => setCurrentDate(new Date());
 
     // Fetch events
-    const storeData = useAppStore(useShallow(state => ({
-        lessons: state.lessons,
-        evaluations: state.evaluations,
-        students: state.students,
-        calendarEvents: state.calendarEvents,
-        courses: state.courses
-    })));
-
     const events = useMemo(() => {
         return calendarService.getAggregatedEvents(
             currentDate.getMonth(),
             currentDate.getFullYear(),
-            filters,
-            storeData
+            filters
         );
-    }, [currentDate, filters, storeData]); // Re-fetch when store changes or modals close
+    }, [currentDate, filters, showCreateModal, showImportModal]); // Re-fetch when modals close
 
     const monthName = currentDate.toLocaleString('es-UY', { month: 'long', year: 'numeric' });
 

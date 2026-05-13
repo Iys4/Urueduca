@@ -8,7 +8,6 @@ import GroupDetail from './components/GroupDetail/GroupDetail';
 import EvaluationGrading from './components/Groups/EvaluationGrading';
 import CoursePlanningDashboard from './components/CoursePlanning/CoursePlanningDashboard';
 import CourseDetail from './components/CoursePlanning/CourseDetail/CourseDetail';
-import StudentsDashboard from './components/Students/StudentsDashboard';
 import CalendarHub from './components/Calendar/CalendarHub';
 import Settings from './components/Views/Settings';
 import DevPanel from './components/DevPanel/DevPanel';
@@ -58,22 +57,14 @@ function AppContent() {
   const [booting, setBooting] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
     const boot = async () => {
-      try {
-        console.log("App booting...");
-        // 1. Ensure DB is seeded (creates demo user)
-        await seedDatabase();
-        // 2. Try to restore session
-        await restoreSession();
-      } catch (error) {
-        console.error("Boot error:", error);
-      } finally {
-        if (mounted) setBooting(false);
-      }
+      // 1. Ensure DB is seeded (creates demo user)
+      await seedDatabase();
+      // 2. Try to restore session
+      await restoreSession();
+      setBooting(false);
     };
     boot();
-    return () => { mounted = false; };
   }, [restoreSession]);
 
   useEffect(() => {
@@ -125,11 +116,6 @@ function AppContent() {
         <Route path="/planning/:id/*" element={
           <ProtectedRoute>
             <MainLayout><CourseDetail /></MainLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/students" element={
-          <ProtectedRoute>
-            <MainLayout><StudentsDashboard /></MainLayout>
           </ProtectedRoute>
         } />
         <Route path="/calendar/*" element={

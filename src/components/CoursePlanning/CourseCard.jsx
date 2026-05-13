@@ -9,21 +9,18 @@ const statusConfig = {
     archived: { label: 'Archivado', variant: 'neutral',  borderColor: 'border-t-outline-variant' },
 };
 
-const CourseCard = ({ course, onDuplicate, onDelete, onShare }) => {
+const CourseCard = ({ course, onDuplicate, onDelete }) => {
     const navigate = useNavigate();
     const status = statusConfig[course.status] || statusConfig.draft;
 
     const dropdownItems = [
         { icon: 'open_in_new', label: 'Abrir curso', onClick: () => navigate(`/planning/${course.id}`) },
-        course.publishedToMarketplace
-            ? { icon: 'storefront', label: 'Ya publicado en el Mercado', onClick: () => {}, disabled: true }
-            : { icon: 'share', label: 'Compartir al Mercado', onClick: () => onShare?.(course.id) },
+        { icon: 'share', label: 'Compartir', onClick: () => navigate(`/planning/${course.id}/collaborators`) },
         { icon: 'content_copy', label: 'Duplicar', onClick: () => onDuplicate(course.id) },
         { separator: true },
         { icon: 'edit', label: 'Editar', onClick: () => navigate(`/planning/${course.id}`) },
         { icon: 'delete', label: 'Eliminar', onClick: () => onDelete(course.id), danger: true },
     ];
-
 
     return (
         <div
@@ -46,12 +43,6 @@ const CourseCard = ({ course, onDuplicate, onDelete, onShare }) => {
                     <span className="text-xs text-outline font-medium">{course.año}</span>
                     <span className="text-xs text-outline">·</span>
                     <Badge variant={status.variant}>{status.label}</Badge>
-                    {course.publishedToMarketplace && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-tertiary bg-tertiary-container px-2 py-0.5 rounded-full">
-                            <span className="material-symbols-outlined text-[12px]">storefront</span>
-                            Mercado
-                        </span>
-                    )}
                 </div>
 
                 {course.descripcion && (

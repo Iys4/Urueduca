@@ -1,169 +1,120 @@
-import React, { useMemo, useState } from 'react';
-import { Button, Badge, Accordion, EmptyState } from '../../Shared';
-import { useAppStore } from '../../../store/useAppStore';
-import { coursePlanService } from '../../../services/coursePlanService';
+import React, { useEffect, useState } from 'react';
+import { Button, Badge } from '../../Shared';
+import { dashboardService } from '../../../services/dashboardService';
+import { mockDb } from '../../../data/mockDb';
+import PlanDocumentQuickView from '../../Groups/PlanDocumentQuickView';
 
 const PlanningTab = ({ groupId }) => {
-    const group = useAppStore(state => state.courses.find(c => String(c.id) === String(groupId)));
-    const coursePlans = useAppStore(state => state.coursePlans);
-    const markClassCompleted = useAppStore(state => state.markClassCompleted);
-    const unmarkClassCompleted = useAppStore(state => state.unmarkClassCompleted);
-    const assignCoursePlan = useAppStore(state => state.assignCoursePlan);
+    const [lessons, setLessons] = useState([]);
+    const [showQuickView, setShowQuickView] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState(null);
 
-    const [isAssigning, setIsAssigning] = useState(false);
+    useEffect(() => {
+        const data = dashboardService.getLessonsByCourse(groupId);
+        setLessons(data);
+        
+        // Mock finding the plan for the course
+        const groupStr = dashboardService.getCourseById(groupId)?.name || '';
+        const isBio4 = groupStr.includes('4to');
+        const planId = isBio4 ? 'cp-bio-4' : 'cp-bio-5';
+        setCurrentPlan(mockDb.coursePlans.find(p => p.id === planId));
+    }, [groupId]);
 
-    const plan = useMemo(() => {
-        if (!group?.coursePlanId) return null;
-        return coursePlans.find(p => p.id === group.coursePlanId);
-    }, [group?.coursePlanId, coursePlans]);
+    const todayStr = new Date().toISOString().split('T')[0];
 
-    const modules = useMemo(() => {
-        if (!plan) return [];
-        return coursePlanService.getModules(plan.id);
-    }, [plan]);
-
-    const handleToggleClass = (classId) => {
-        const isCompleted = group.completedClasses?.includes(classId);
-        if (isCompleted) {
-            unmarkClassCompleted(group.id, classId);
-        } else {
-            markClassCompleted(group.id, classId);
-        }
-    };
-
-    if (!group?.coursePlanId && !isAssigning) {
-        return (
-            <EmptyState
-                icon="event_note"
-                title="Sin planificación vinculada"
-                description="Vinculá una planificación de tus cursos para trackear el progreso real con este grupo."
-                action={
-                    <Button variant="primary" onClick={() => setIsAssigning(true)}>
-                        <span className="material-symbols-outlined text-[18px]">link</span>
-                        Vincular Planificación
-                    </Button>
-                }
-            />
-        );
-    }
-
-    if (isAssigning) {
-        return (
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-on-surface">Seleccionar Planificación</h2>
-                    <Button variant="ghost" size="sm" onClick={() => setIsAssigning(false)}>Cancelar</Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {coursePlans.length > 0 ? (
-                        coursePlans.map(cp => (
-                            <div 
-                                key={cp.id}
-                                className="p-4 rounded-xl border border-outline-variant bg-surface hover:border-primary cursor-pointer transition-all"
-                                onClick={() => {
-                                    assignCoursePlan(group.id, cp.id);
-                                    setIsAssigning(false);
-                                }}
-                            >
-                                <h3 className="font-bold text-on-surface">{cp.nombre}</h3>
-                                <p className="text-xs text-on-surface-variant">{cp.materia} · {cp.año}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-sm text-outline col-span-2 text-center py-8">No tenés planificaciones creadas aún.</p>
-                    )}
-                </div>
-            </div>
-        );
-    }
+    if (lessons.length === 0) return (
+        <div className="text-center py-16">
+            <span className="material-symbols-outlined text-[48px] text-outline mb-3">event_busy</span>
+            <p className="text-secondary font-medium mb-4">No hay clases planificadas aún</p>
+            <Button variant="primary">
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                Agregar Primera Clase
+            </Button>
+        </div>
+    );
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-lg font-bold text-on-surface">Seguimiento de Planificación</h2>
-                    <p className="text-sm text-on-surface-variant">
-                        Plan: <span className="font-semibold">{plan?.nombre || 'Cargando...'}</span>
-                    </p>
+        <div>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-bold text-on-surface">Cronograma de Clases</h2>
+                <div className="flex gap-2">
+                    {currentPlan && currentPlan.curriculumDocument && (
+                        <Button variant="outline" size="sm" onClick={() => setShowQuickView(true)}>
+                            <span className="material-symbols-outlined text-[16px]">description</span>
+                            Ver Documento
+                        </Button>
+                    )}
+                    <Button variant="primary" size="sm">
+                        <span className="material-symbols-outlined text-[16px]">add</span>
+                        Nueva Clase
+                    </Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setIsAssigning(true)}>
-                    <span className="material-symbols-outlined text-[16px]">sync</span>
-                    Cambiar Plan
-                </Button>
             </div>
 
-            {/* Modules Progress */}
-            <div className="space-y-4">
-                {modules.map((mod, idx) => {
-                    const modClasses = mod.classes || [];
-                    const completedInMod = modClasses.filter(c => group.completedClasses?.includes(c.id)).length;
-                    const progressPercent = modClasses.length > 0 ? Math.round((completedInMod / modClasses.length) * 100) : 0;
+            {/* Timeline */}
+            <div className="relative ml-4 border-l-2 border-outline-variant space-y-6 pb-4">
+                {lessons.map((cls) => {
+                    const isPast = cls.date < todayStr;
+                    const isToday = cls.date === todayStr;
+                    const isFuture = cls.date > todayStr;
+
+                    let dotClass = 'bg-outline-variant';
+                    if (isToday) dotClass = 'bg-primary ring-4 ring-primary/15';
+                    else if (isPast) dotClass = 'bg-tertiary';
+
+                    let statusBadge = null;
+                    if (isToday) statusBadge = <Badge variant="primary" dot>Hoy</Badge>;
+                    else if (isPast) statusBadge = <Badge variant="success" icon="check_circle">Dictada</Badge>;
+                    else statusBadge = <Badge variant="neutral">Planificada</Badge>;
+
+                    const dateFormatted = new Date(cls.date + 'T12:00:00').toLocaleDateString('es-UY', {
+                        weekday: 'short', day: 'numeric', month: 'short'
+                    });
 
                     return (
-                        <Accordion
-                            key={mod.id}
-                            defaultOpen={idx === 0}
-                            title={
-                                <span className="flex items-center gap-2">
-                                    <span className="text-[11px] font-bold text-primary bg-primary-container/50 px-2 py-0.5 rounded-full shrink-0">
-                                        {mod.order}
+                        <div key={cls.id} className={`relative pl-8 ${isPast ? 'opacity-60' : ''}`}>
+                            {/* Dot */}
+                            <div className={`absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-container-lowest ${dotClass}`} />
+
+                            <div className={`
+                                p-4 rounded-lg border transition-all
+                                ${isToday ? 'border-primary bg-primary-container/20 shadow-sm' : 'border-outline-variant bg-surface hover:shadow-sm'}
+                            `}>
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
+                                    <h3 className={`font-bold text-sm ${isToday ? 'text-primary' : 'text-on-surface'}`}>
+                                        {cls.topic}
+                                    </h3>
+                                    {statusBadge}
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-3 text-xs text-secondary">
+                                    <span className="flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                                        {dateFormatted}
                                     </span>
-                                    {mod.title}
-                                </span>
-                            }
-                            subtitle={`${completedInMod}/${modClasses.length} clases dictadas`}
-                            badges={
-                                progressPercent === 100 ? (
-                                    <Badge variant="success" icon="check_circle">Terminado</Badge>
-                                ) : progressPercent > 0 ? (
-                                    <Badge variant="primary">{progressPercent}%</Badge>
-                                ) : null
-                            }
-                        >
-                            <div className="space-y-2 mt-2">
-                                {modClasses.map(cls => {
-                                    const isDone = group.completedClasses?.includes(cls.id);
-                                    return (
-                                        <div 
-                                            key={cls.id}
-                                            className={`
-                                                flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer
-                                                ${isDone ? 'bg-surface-container border-outline-variant opacity-75' : 'bg-surface border-outline-variant hover:border-primary'}
-                                            `}
-                                            onClick={() => handleToggleClass(cls.id)}
-                                        >
-                                            <div className={`
-                                                w-5 h-5 rounded border-2 flex items-center justify-center transition-all
-                                                ${isDone ? 'bg-primary border-primary' : 'border-outline'}
-                                            `}>
-                                                {isDone && <span className="material-symbols-outlined text-[16px] text-on-primary">check</span>}
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <p className={`text-sm font-semibold ${isDone ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>
-                                                        {cls.title}
-                                                    </p>
-                                                    <Badge variant={cls.type === 'evaluation' ? 'warning' : 'neutral'} className="text-[9px] uppercase">
-                                                        {cls.type === 'evaluation' ? 'Evaluación' : cls.type === 'optional' ? 'Opcional' : 'Obligatoria'}
-                                                    </Badge>
-                                                </div>
-                                                {cls.shortDescription && !isDone && (
-                                                    <p className="text-xs text-on-surface-variant mt-0.5 line-clamp-1">{cls.shortDescription}</p>
-                                                )}
-                                            </div>
-                                            {isDone ? (
-                                                <span className="text-[10px] font-bold text-success uppercase">Dictada</span>
-                                            ) : (
-                                                <span className="text-[10px] font-bold text-outline uppercase group-hover:text-primary">Marcar dictada</span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                    <span className="flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                        {cls.start_time} – {cls.end_time}
+                                    </span>
+                                    {cls.notes && (
+                                        <span className="flex items-center gap-1 text-primary">
+                                            <span className="material-symbols-outlined text-[14px]">sticky_note_2</span>
+                                            {cls.notes}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
-                        </Accordion>
+                        </div>
                     );
                 })}
             </div>
+
+            {showQuickView && currentPlan && (
+                <PlanDocumentQuickView 
+                    plan={currentPlan} 
+                    onClose={() => setShowQuickView(false)} 
+                />
+            )}
         </div>
     );
 };

@@ -27,11 +27,11 @@ const CoursesSummary = ({ courses }) => {
                         >
                             <div className="flex items-center gap-4 min-w-0">
                                 <div className="w-9 h-9 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold shrink-0">
-                                    {(course.name || course.nombre || '??').substring(0, 2)}
+                                    {course.name.substring(0, 2)}
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-semibold text-sm text-on-surface truncate">{course.name || course.nombre}</h3>
-                                    <p className="text-[11px] text-outline truncate">{course.institution || 'Sin institución'}</p>
+                                    <h3 className="font-semibold text-sm text-on-surface truncate">{course.name}</h3>
+                                    <p className="text-[11px] text-outline truncate">{course.institution}</p>
                                 </div>
                             </div>
 

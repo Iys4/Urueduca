@@ -93,13 +93,6 @@ const ClassDetail = () => {
     const tc = typeConfig[cls.type] || typeConfig.mandatory;
     const modules = coursePlanService.getModulesForMoveTarget(coursePlanId, moduleId);
 
-    const formatEvalDate = (dateStr) => {
-        if (!dateStr) return 'Sin definir';
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return 'Fecha inválida';
-        return d.toLocaleDateString('es-UY', { day: 'numeric', month: 'short', year: 'numeric' });
-    };
-
     return (
         <div className="space-y-5">
             {/* Breadcrumb */}
@@ -278,7 +271,7 @@ const ClassDetail = () => {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                     <div>
                                         <p className="text-[11px] text-on-surface-variant font-semibold uppercase tracking-wider mb-0.5">Fecha</p>
-                                        <p className="text-sm font-semibold text-on-surface">{formatEvalDate(cls.evaluationData?.fecha)}</p>
+                                        <p className="text-sm font-semibold text-on-surface">{cls.evaluationData?.fecha ? new Date(cls.evaluationData.fecha).toLocaleDateString('es-UY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Sin definir'}</p>
                                     </div>
                                     <div>
                                         <p className="text-[11px] text-on-surface-variant font-semibold uppercase tracking-wider mb-0.5">Ponderación</p>

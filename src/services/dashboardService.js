@@ -10,7 +10,7 @@ export const dashboardService = {
     getTodayLessons: (userId = 1) => {
         const state = useAppStore.getState();
         const todayStr = new Date().toISOString().split('T')[0];
-        const userCourses = state.courses.filter(c => c.userId === userId);
+        const userCourses = state.courses.filter(c => c.user_id === userId);
         const courseIds = userCourses.map(c => c.id);
         
         return state.lessons
@@ -36,7 +36,7 @@ export const dashboardService = {
 
     getCoursesSummary: (userId = 1) => {
         const state = useAppStore.getState();
-        const userCourses = state.courses.filter(c => c.userId === userId);
+        const userCourses = state.courses.filter(c => c.user_id === userId);
         return userCourses.map(course => {
             const evals = state.evaluations
                 .filter(e => e.course_id === course.id && (e.status === 'upcoming' || e.status === 'pending_grading'))
@@ -60,7 +60,7 @@ export const dashboardService = {
 
     getGroupsViewData: (userId = 1) => {
         const state = useAppStore.getState();
-        const userCourses = state.courses.filter(c => c.userId === userId);
+        const userCourses = state.courses.filter(c => c.user_id === userId);
         const todayStr = new Date().toISOString().split('T')[0];
 
         return userCourses.map(course => {
@@ -73,19 +73,6 @@ export const dashboardService = {
                 .filter(e => e.course_id === course.id && e.status !== 'graded')
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
             const nextEval = evals.length > 0 ? evals[0] : null;
-
-            // Calculate real progress
-            let progress = 0;
-            if (course.coursePlanId) {
-                const plan = state.coursePlans.find(p => p.id === course.coursePlanId);
-                if (plan) {
-                    const totalClasses = (plan.modules || []).reduce((sum, m) => sum + (m.classes || []).length, 0);
-                    if (totalClasses > 0) {
-                        const completedCount = (course.completedClasses || []).length;
-                        progress = Math.round((completedCount / totalClasses) * 100);
-                    }
-                }
-            }
 
             let status = 'neutral';
             let statusText = 'Sin actividad hoy';
@@ -121,7 +108,6 @@ export const dashboardService = {
 
             return {
                 ...course,
-                moduleProgress: progress, // map back to UI field name
                 nextClass,
                 nextEval,
                 status,
@@ -133,47 +119,35 @@ export const dashboardService = {
 
     getStudentsByCourse: (courseId) => {
         const state = useAppStore.getState();
-        const cId = String(courseId);
         return state.students
-            .filter(s => String(s.course_id) === cId)
+            .filter(s => s.course_id === parseInt(courseId))
             .sort((a, b) => a.name.localeCompare(b.name));
     },
 
     getEvaluationsByCourse: (courseId) => {
         const state = useAppStore.getState();
-        const cId = String(courseId);
         return state.evaluations
-            .filter(e => String(e.course_id) === cId)
+            .filter(e => e.course_id === parseInt(courseId))
             .sort((a, b) => new Date(b.date) - new Date(a.date));
     },
 
     getLessonsByCourse: (courseId) => {
         const state = useAppStore.getState();
-        const cId = String(courseId);
         return state.lessons
-            .filter(l => String(l.course_id) === cId)
+            .filter(l => l.course_id === parseInt(courseId))
             .sort((a, b) => a.date.localeCompare(b.date));
     },
 
     getCourseById: (courseId) => {
         const state = useAppStore.getState();
-        const cId = String(courseId);
-        return state.courses.find(c => String(c.id) === cId) || null;
+        return state.courses.find(c => c.id === parseInt(courseId)) || null;
     },
 
     getPendingAlerts: (userId = 1) => {
         return alertsEngine.generateAlerts(userId);
     },
 
-    getQuickStats: (userId) => {
-        const state = useAppStore.getState();
-        const userCourses = state.courses.filter(c => c.userId === userId);
-        const courseIds = new Set(userCourses.map(c => c.id));
-
-        const totalStudents = state.students.filter(s => courseIds.has(s.course_id)).length;
-        const totalLessons  = state.lessons.filter(l => courseIds.has(l.course_id)).length;
-        const totalEvals    = state.evaluations.filter(e => courseIds.has(e.course_id)).length;
-
-        return { totalStudents, totalLessons, totalEvals };
+    getQuickStats: () => {
+        return useAppStore.getState().stats;
     }
 };
