@@ -1,7 +1,7 @@
-import dbConnect from './lib/db';
-import { handleCrud } from './lib/handler';
-import * as Schemas from './models/Schemas';
-import { mockDb } from '../src/data/mockDb';
+import dbConnect from './lib/db.js';
+import { handleCrud } from './lib/handler.js';
+import * as Schemas from './models/Schemas.js';
+import { mockDb } from '../src/data/mockDb.js';
 import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
@@ -61,24 +61,6 @@ export default async function handler(req, res) {
     }
 
     // ─── CRUD ───
-    if (path.startsWith('/api/crud/')) {
-      const resource = path.replace('/api/crud/', '');
-      const modelMap = {
-        'users': Schemas.User,
-        'courses': Schemas.Course,
-        'students': Schemas.Student,
-        'lessons': Schemas.Lesson,
-        'evaluations': Schemas.Evaluation,
-        'course_plans': Schemas.CoursePlan,
-        'calendar_events': Schemas.CalendarEvent,
-        'marketplace': Schemas.MarketplaceItem
-      };
-      const Model = modelMap[resource];
-      if (Model) return await handleCrud(req, res, Model);
-    }
-
-    // Default legacy support for /api/[resource] if needed
-    const legacyResource = path.replace('/api/', '');
     const modelMap = {
       'users': Schemas.User,
       'courses': Schemas.Course,
@@ -89,6 +71,15 @@ export default async function handler(req, res) {
       'calendar_events': Schemas.CalendarEvent,
       'marketplace': Schemas.MarketplaceItem
     };
+
+    if (path.startsWith('/api/crud/')) {
+      const resource = path.replace('/api/crud/', '');
+      const Model = modelMap[resource];
+      if (Model) return await handleCrud(req, res, Model);
+    }
+
+    // Default legacy support for /api/[resource]
+    const legacyResource = path.replace('/api/', '');
     const Model = modelMap[legacyResource];
     if (Model) return await handleCrud(req, res, Model);
 

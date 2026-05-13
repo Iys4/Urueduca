@@ -1,4 +1,4 @@
-import connectToDatabase from './db';
+import connectToDatabase from './db.js';
 
 export async function handleCrud(req, res, Model) {
   const { method } = req;
