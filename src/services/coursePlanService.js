@@ -34,6 +34,7 @@ const enrichPlan = (cp) => {
     const collaborators = cp.collaborators || [];
     return {
         ...cp,
+        status: cp.status === 'draft' || !cp.status ? 'active' : cp.status,
         modules,
         globalClasses: [], // kept for UI compatibility
         modulesCount: modules.length,

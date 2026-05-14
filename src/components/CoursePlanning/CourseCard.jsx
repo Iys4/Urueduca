@@ -31,7 +31,7 @@ const materiaIcons = {
 
 const CourseCard = ({ course, onDuplicate, onDelete, onShare, isSharing = false }) => {
     const navigate = useNavigate();
-    const status = statusConfig[course.status] || statusConfig.draft;
+    const status = statusConfig[course.status] || statusConfig.active;
     const colorClass = materiaColors[course.materia] || 'bg-surface-container text-on-surface-variant border-outline-variant';
     const icon = materiaIcons[course.materia] || 'auto_stories';
 

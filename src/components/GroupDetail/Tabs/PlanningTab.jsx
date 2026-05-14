@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Badge, Accordion, EmptyState } from '../../Shared';
 import { useAppStore } from '../../../store/useAppStore';
 import { coursePlanService } from '../../../services/coursePlanService';
 
 const PlanningTab = ({ groupId }) => {
+    const navigate = useNavigate();
     const group = useAppStore(state => state.courses.find(c => String(c.id) === String(groupId)));
     const coursePlans = useAppStore(state => state.coursePlans);
     const markClassCompleted = useAppStore(state => state.markClassCompleted);
@@ -82,9 +84,20 @@ const PlanningTab = ({ groupId }) => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-lg font-bold text-on-surface">Seguimiento de Planificación</h2>
-                    <p className="text-sm text-on-surface-variant">
-                        Plan: <span className="font-semibold">{plan?.nombre || 'Cargando...'}</span>
-                    </p>
+                    <div className="flex items-center gap-2">
+                        <p className="text-sm text-on-surface-variant">
+                            Plan: <span className="font-semibold">{plan?.nombre || 'Cargando...'}</span>
+                        </p>
+                        {plan && (
+                            <button
+                                onClick={() => navigate(`/planning/${plan.id}`)}
+                                className="text-[10px] bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-bold hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-1"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                                VER ORIGINAL
+                            </button>
+                        )}
+                    </div>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => setIsAssigning(true)}>
                     <span className="material-symbols-outlined text-[16px]">sync</span>
