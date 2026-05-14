@@ -9,9 +9,62 @@ const todayStr = new Date().toISOString().split('T')[0];
 // Exported for testing/services
 export const getTodayStr = () => todayStr;
 
+const generateStudents = (courseId, count, startId) => {
+    const students = [];
+    const surnames = ["García", "Rodríguez", "González", "Fernández", "López", "Martínez", "Sánchez", "Pérez", "Gómez", "Romero"];
+    const names = ["Santiago", "Sebastián", "Matías", "Joaquín", "Felipe", "Valentina", "Martina", "Sofía", "Lucía", "Camila"];
+    for (let i = 0; i < count; i++) {
+        const name = `${surnames[i % 10]}, ${names[(i + 3) % 10]} ${i > 9 ? 'II' : ''}`;
+        const birthMonth = (i % 12);
+        const birthDay = (i % 28) + 1;
+        students.push({
+            id: startId + i,
+            name,
+            email: `alumno${startId + i}@edu.uy`,
+            course_id: courseId,
+            avg: Math.floor(Math.random() * 5) + 7,
+            birthdate: `${2010 - (courseId > 800 ? 1 : 0)}-${String(birthMonth + 1).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`
+        });
+    }
+    return students;
+};
+
+const generatePlanModules = (planId, prefix) => {
+    const modules = [];
+    for (let m = 1; m <= 4; m++) {
+        const classes = [];
+        for (let c = 1; c <= 4; c++) {
+            classes.push({
+                id: `cls-${prefix}-${m}-${c}`,
+                title: `Clase ${c} del Módulo ${m}`,
+                type: 'mandatory',
+                objectives: 'Objetivos de aprendizaje de la clase.',
+                shortDescription: 'Descripción breve del tema tratado.'
+            });
+        }
+        // Add evaluation
+        classes.push({
+            id: `eval-${prefix}-${m}`,
+            title: `Evaluación Módulo ${m}`,
+            type: 'evaluation',
+            shortDescription: `Prueba correspondiente a la unidad ${m}.`
+        });
+        modules.push({
+            id: `mod-${prefix}-${m}`,
+            coursePlanId: planId,
+            title: `Módulo ${m}: Unidad Temática`,
+            description: `Descripción del módulo ${m}.`,
+            order: m,
+            classes
+        });
+    }
+    return modules;
+};
+
 export const mockDb = {
     users: [
-        { id: 1, name: "María Bióloga", email: "maria@edu.uy", institution: "Liceo Departamental", birthdate: '1985-04-15' }
+        { id: 1, name: "María Bióloga", email: "maria@edu.uy", institution: "Liceo Departamental", birthdate: '1985-04-15' },
+        { id: 2, name: "Prototipo Docente", email: "prototipo@edu.uy", institution: "Múltiples Liceos", birthdate: '1990-01-01' }
     ],
 
     // Mover datos viejos a archived
@@ -21,10 +74,15 @@ export const mockDb = {
     ],
     
     courses: [
-        { id: 401, name: "4to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 25, performance: 7.5, coursePlanId: null, completedClasses: [] },
-        { id: 501, name: "5to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 28, performance: 8.2, coursePlanId: null, completedClasses: [] },
+        { id: 401, name: "4to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 25, performance: 7.5, coursePlanId: 'cp-bio-4', completedClasses: [] },
+        { id: 501, name: "5to Biología", institution: "Liceo Departamental", year: 2026, user_id: 1, active: true, studentsCount: 28, performance: 8.2, coursePlanId: 'cp-bio-5', completedClasses: [] },
         { id: 601, name: "6to Biología", institution: "Liceo Javier de Viana", year: 2026, user_id: 1, active: true, studentsCount: 15, performance: 8.8, coursePlanId: null, completedClasses: [] },
-        { id: 502, name: "5to Biology (ENG)", institution: "Bilingual School", year: 2026, user_id: 1, active: true, studentsCount: 12, performance: 9.1, coursePlanId: null, completedClasses: [] }
+        { id: 502, name: "5to Biology (ENG)", institution: "Bilingual School", year: 2026, user_id: 1, active: true, studentsCount: 12, performance: 9.1, coursePlanId: null, completedClasses: [] },
+        
+        // Prototype Courses (User 2)
+        { id: 801, name: "4to A - Biología", institution: "Liceo N°1", year: 2026, user_id: 2, active: true, studentsCount: 20, performance: 8.5, coursePlanId: 'cp-proto-4', completedClasses: ['cls-p4-1-1', 'cls-p4-1-2', 'cls-p4-1-3', 'cls-p4-1-4', 'eval-p4-1'] },
+        { id: 802, name: "5to B - Biología", institution: "Liceo N°1", year: 2026, user_id: 2, active: true, studentsCount: 20, performance: 7.9, coursePlanId: 'cp-proto-5', completedClasses: ['cls-p5-1-1', 'cls-p5-1-2', 'cls-p5-1-3', 'cls-p5-1-4', 'eval-p5-1'] },
+        { id: 803, name: "6to C - Biología", institution: "Liceo N°2", year: 2026, user_id: 2, active: true, studentsCount: 20, performance: 9.2, coursePlanId: 'cp-proto-6', completedClasses: ['cls-p6-1-1', 'cls-p6-1-2', 'cls-p6-1-3', 'cls-p6-1-4', 'eval-p6-1'] }
     ],
 
     students: [
@@ -39,7 +97,12 @@ export const mockDb = {
         { id: 6001, name: "Fernández, Diego", email: "diego@edu.uy", course_id: 601, avg: 9.5, birthdate: '2008-04-12' },
         { id: 6002, name: "González, Valentina", email: "val@edu.uy", course_id: 601, avg: 7.2, birthdate: '2008-12-01' },
         // 5to Biology ENG
-        { id: 5021, name: "Smith, John", email: "john@edu.uy", course_id: 502, avg: 8.5, birthdate: '2009-05-20' }
+        { id: 5021, name: "Smith, John", email: "john@edu.uy", course_id: 502, avg: 8.5, birthdate: '2009-05-20' },
+
+        // Prototype Students
+        ...generateStudents(801, 20, 8010),
+        ...generateStudents(802, 20, 8020),
+        ...generateStudents(803, 20, 8030)
     ],
 
     coursePlans: [
@@ -69,7 +132,11 @@ export const mockDb = {
             createdAt: '2026-02-05',
             updatedAt: '2026-03-05',
             curriculumDocument: null
-        }
+        },
+        // Prototype Plans
+        { id: 'cp-proto-4', nombre: 'Biología 4° Prototipo', materia: 'Biología', año: '4°', owner: 2, status: 'active', createdAt: '2026-03-10', updatedAt: '2026-03-10' },
+        { id: 'cp-proto-5', nombre: 'Biología 5° Prototipo', materia: 'Biología', año: '5°', owner: 2, status: 'active', createdAt: '2026-03-10', updatedAt: '2026-03-10' },
+        { id: 'cp-proto-6', nombre: 'Biología 6° Prototipo', materia: 'Biología', año: '6°', owner: 2, status: 'active', createdAt: '2026-03-10', updatedAt: '2026-03-10' }
     ],
 
     modules: [
@@ -151,7 +218,11 @@ export const mockDb = {
                 { id: 'cls-5-9', title: 'Evidencias de la Evolución', type: 'mandatory', objectives: 'Registro fósil, anatomía comparada', shortDescription: 'Órganos homólogos y análogos.' },
                 { id: 'cls-5-eval2', title: 'Ensayo Evolutivo', type: 'evaluation', shortDescription: 'Ensayo sobre el impacto de las teorías de Darwin.', evaluationData: { modalidad: 'proyecto', ponderacion: 25 } }
             ]
-        }
+        },
+        // Prototype Modules
+        ...generatePlanModules('cp-proto-4', 'p4'),
+        ...generatePlanModules('cp-proto-5', 'p5'),
+        ...generatePlanModules('cp-proto-6', 'p6')
     ],
 
 
@@ -160,7 +231,15 @@ export const mockDb = {
         { id: 40101, course_id: 401, date: todayStr, start_time: "08:00", end_time: "09:30", topic: "Organelos", classPlanId: 'cls-4-2' },
         // Para 5to Biología: hoy
         { id: 50101, course_id: 501, date: todayStr, start_time: "10:00", end_time: "11:30", topic: "Genética Mendeliana", classPlanId: 'cls-5-1' },
-        // Nota: 6to Biología no tiene lessons planificadas a futuro -> Alerta 3
+        
+        // Prototype Lessons (Module 1 completed)
+        { id: 80101, course_id: 801, date: dPlus(-7).toISOString().split('T')[0], start_time: "08:00", end_time: "09:30", topic: "Intro M1", classPlanId: 'cls-p4-1-1' },
+        { id: 80102, course_id: 801, date: dPlus(-5).toISOString().split('T')[0], start_time: "08:00", end_time: "09:30", topic: "Clase 2", classPlanId: 'cls-p4-1-2' },
+        { id: 80103, course_id: 801, date: dPlus(-3).toISOString().split('T')[0], start_time: "08:00", end_time: "09:30", topic: "Clase 3", classPlanId: 'cls-p4-1-3' },
+        { id: 80104, course_id: 801, date: dPlus(-1).toISOString().split('T')[0], start_time: "08:00", end_time: "09:30", topic: "Clase 4", classPlanId: 'cls-p4-1-4' },
+        
+        { id: 80201, course_id: 802, date: dPlus(-7).toISOString().split('T')[0], start_time: "10:00", end_time: "11:30", topic: "Intro M1", classPlanId: 'cls-p5-1-1' },
+        { id: 80301, course_id: 803, date: dPlus(-7).toISOString().split('T')[0], start_time: "12:00", end_time: "13:30", topic: "Intro M1", classPlanId: 'cls-p6-1-1' }
     ],
 
     attendanceRecords: {
@@ -182,6 +261,22 @@ export const mockDb = {
             date: dPlus(5).toISOString().split('T')[0], type: "Proyecto", status: "upcoming", 
             grades: {},
             rubric: null // Sin rúbrica = dispara Alerta 4
+        },
+        // Prototype Evaluations (Module 1)
+        { 
+            id: 8011, course_id: 801, classPlanId: 'eval-p4-1', title: "Evaluación 1 (4to)", 
+            date: dPlus(-1).toISOString().split('T')[0], type: "Escrito", status: "graded", 
+            grades: { 8010: { nota: 10 }, 8011: { nota: 8 }, 8012: { nota: 6 } } 
+        },
+        { 
+            id: 8021, course_id: 802, classPlanId: 'eval-p5-1', title: "Evaluación 1 (5to)", 
+            date: dPlus(-1).toISOString().split('T')[0], type: "Escrito", status: "graded", 
+            grades: { 8020: { nota: 9 }, 8021: { nota: 7 } } 
+        },
+        { 
+            id: 8031, course_id: 803, classPlanId: 'eval-p6-1', title: "Evaluación 1 (6to)", 
+            date: dPlus(-1).toISOString().split('T')[0], type: "Escrito", status: "graded", 
+            grades: { 8030: { nota: 12 }, 8031: { nota: 11 } } 
         }
     ],
 

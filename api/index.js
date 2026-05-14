@@ -27,11 +27,17 @@ export default async function handler(req, res) {
         { name: 'TeachingGroup', data: mockDb.teachingGroups || [] },
         { name: 'MarketplaceItem', data: mockDb.marketplace || [] }
       ];
+      const DEFAULT_HASH = await bcrypt.hash('urueduca', 10);
       for (const { name, data } of collections) {
         const Model = Schemas[name];
         if (Model) {
           await Model.deleteMany({});
-          await Model.insertMany(data.map(item => ({ ...item, userId: item.userId || item.user_id || 'usr-demo-1' })));
+          const preparedData = data.map(item => ({ 
+            ...item, 
+            userId: item.userId || item.user_id || 'usr-demo-1',
+            passwordHash: name === 'User' ? (item.passwordHash || DEFAULT_HASH) : undefined
+          }));
+          await Model.insertMany(preparedData);
           results[name] = 'seeded';
         }
       }
