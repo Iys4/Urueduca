@@ -30,11 +30,13 @@ const LogClassTab = ({ groupId }) => {
 
     const availableClasses = useMemo(() => {
         if (!plan) return [];
-        // Flatten modules and their classes
+        // Flatten modules and their classes, filtering out evaluations
         const flattened = [];
         (plan.modules || []).forEach(mod => {
             (mod.classes || []).forEach(cls => {
-                flattened.push({ ...cls, moduleTitle: mod.title });
+                if (cls.type !== 'evaluation') {
+                    flattened.push({ ...cls, moduleTitle: mod.title });
+                }
             });
         });
         return flattened;
@@ -88,6 +90,12 @@ const LogClassTab = ({ groupId }) => {
     const handleSave = async () => {
         if (!summary.trim()) {
             alert('Por favor escribí un resumen de la clase.');
+            return;
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        if (selectedDate > today) {
+            alert('No se pueden registrar clases en fechas futuras. Las clases solo pueden loguearse luego de efectuadas.');
             return;
         }
 
@@ -162,6 +170,7 @@ const LogClassTab = ({ groupId }) => {
                             type="date"
                             className="px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm font-medium focus:outline-none focus:border-primary transition-all"
                             value={selectedDate}
+                            max={new Date().toISOString().split('T')[0]}
                             onChange={e => setSelectedDate(e.target.value)}
                         />
                     </div>

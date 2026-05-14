@@ -16,9 +16,9 @@ import { mockDb } from './mockDb';
 const MARKETPLACE_CLASSES = [
     {
         id: 'mp-cls-1',
-        title: 'Teoría celular',
+        nombre: 'Teoría celular',
         type: 'mandatory',
-        shortDescription: 'Historia e introducción a la teoría celular. Diferencias entre procariontas y eucariontas.',
+        descripcion: 'Historia e introducción a la teoría celular. Diferencias entre procariontas y eucariontas.',
         materia: 'Biología',
         año: '4°',
         planNombre: 'Biología 4to — Célula y Metabolismo',
@@ -28,9 +28,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-2',
-        title: 'Organelos celulares',
+        nombre: 'Organelos celulares',
         type: 'mandatory',
-        shortDescription: 'Estudio de mitocondrias, cloroplastos, núcleo y ribosomas.',
+        descripcion: 'Estudio de mitocondrias, cloroplastos, núcleo y ribosomas.',
         materia: 'Biología',
         año: '4°',
         planNombre: 'Biología 4to — Célula y Metabolismo',
@@ -40,9 +40,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-3',
-        title: 'Práctica de microscopía',
+        nombre: 'Práctica de microscopía',
         type: 'optional',
-        shortDescription: 'Laboratorio: observación de células vegetales y animales.',
+        descripcion: 'Laboratorio: observación de células vegetales y animales.',
         materia: 'Biología',
         año: '4°',
         planNombre: 'Biología 4to — Célula y Metabolismo',
@@ -52,9 +52,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-4',
-        title: 'Fotosíntesis',
+        nombre: 'Fotosíntesis',
         type: 'mandatory',
-        shortDescription: 'Ciclo de Calvin y reacciones de la luz.',
+        descripcion: 'Ciclo de Calvin y reacciones de la luz.',
         materia: 'Biología',
         año: '4°',
         planNombre: 'Biología 4to — Célula y Metabolismo',
@@ -64,9 +64,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-8',
-        title: 'Europa antes de la industria',
+        nombre: 'Europa antes de la industria',
         type: 'mandatory',
-        shortDescription: 'Análisis del modo de producción pre-industrial. Describir la economía agraria del siglo XVIII.',
+        descripcion: 'Análisis del modo de producción pre-industrial. Describir la economía agraria del siglo XVIII.',
         materia: 'Historia',
         año: '3°',
         planNombre: 'Historia 3ro — Revolución Industrial',
@@ -76,9 +76,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-9',
-        title: 'Causas de la Revolución Industrial',
+        nombre: 'Causas de la Revolución Industrial',
         type: 'mandatory',
-        shortDescription: 'El papel de Inglaterra: carbón, vapor y textiles.',
+        descripcion: 'El papel de Inglaterra: carbón, vapor y textiles.',
         materia: 'Historia',
         año: '3°',
         planNombre: 'Historia 3ro — Revolución Industrial',
@@ -88,9 +88,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-13',
-        title: 'Definición de función',
+        nombre: 'Definición de función',
         type: 'mandatory',
-        shortDescription: 'Representación algebraica y gráfica. Entender dominio, codominio e imagen.',
+        descripcion: 'Representación algebraica y gráfica. Entender dominio, codominio e imagen.',
         materia: 'Matemática',
         año: '5°',
         planNombre: 'Matemática 5to — Funciones y Límites',
@@ -100,9 +100,9 @@ const MARKETPLACE_CLASSES = [
     },
     {
         id: 'mp-cls-16',
-        title: 'Intuición del límite',
+        nombre: 'Intuición del límite',
         type: 'mandatory',
-        shortDescription: 'Aproximaciones numéricas y geométricas para comprender qué es un límite.',
+        descripcion: 'Aproximaciones numéricas y geométricas para comprender qué es un límite.',
         materia: 'Matemática',
         año: '5°',
         planNombre: 'Matemática 5to — Funciones y Límites',
@@ -192,12 +192,15 @@ export const seedDatabase = async () => {
         console.log('User course plans: starting empty (use Marketplace to get plans)');
     }
 
-    // 8. Seed Marketplace (shared, global — only once, regardless of user)
-    // ALWAYS clear marketplace and re-seed to ensure correct structure
-    const db = await getDB();
-    await db.clear(STORES.MARKETPLACE);
-    await marketplaceRepository.addAll(MARKETPLACE_CLASSES);
-    console.log('Marketplace forcefully seeded with individual classes');
+    // 8. Seed Marketplace (shared, global — only if empty or forcefully requested)
+    const existingMarketplace = await marketplaceRepository.getAll();
+    if (existingMarketplace.length === 0) {
+        console.log('Marketplace is empty, seeding example classes...');
+        await marketplaceRepository.addAll(MARKETPLACE_CLASSES);
+        console.log('Marketplace seeded with individual classes');
+    } else {
+        console.log('Marketplace already has data, skipping marketplace seed.');
+    }
 
     console.log('Seeding completed successfully!');
 };

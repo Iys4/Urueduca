@@ -130,7 +130,9 @@ const PlanningTab = ({ groupId }) => {
                                                 flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer
                                                 ${isDone ? 'bg-surface-container border-outline-variant opacity-75' : 'bg-surface border-outline-variant hover:border-primary'}
                                             `}
-                                            onClick={() => handleToggleClass(cls.id)}
+                                            onClick={() => {
+                                                if (cls.type !== 'evaluation') handleToggleClass(cls.id);
+                                            }}
                                         >
                                             <div className={`
                                                 w-5 h-5 rounded border-2 flex items-center justify-center transition-all

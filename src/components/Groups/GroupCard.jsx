@@ -34,15 +34,6 @@ const GroupCard = ({ group }) => {
                     </span>
                 </div>
                 <p className="text-[11px] text-outline mb-4">{group.institution}</p>
-
-                {/* Status badge */}
-                <Badge
-                    variant={group.status === 'urgent' ? 'urgent' : group.status === 'attention' ? 'primary' : 'neutral'}
-                    dot
-                    className="mb-4"
-                >
-                    {group.statusText}
-                </Badge>
             </div>
 
             {/* Details */}

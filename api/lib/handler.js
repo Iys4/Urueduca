@@ -30,6 +30,17 @@ export async function handleCrud(req, res, Model) {
     case 'POST':
       try {
         const body = req.body;
+
+        // Validation: Prevent "Ghost" entries with no content
+        // We check for 'nombre' or 'title' (frontend sometimes uses 'title' before schema mapping)
+        const nameField = body.nombre || body.title || body.name;
+        const modelName = Model.modelName;
+
+        if (!nameField && (modelName === 'MarketplaceItem' || modelName === 'Course' || modelName === 'CoursePlan')) {
+          console.warn(`Blocking empty ${modelName} entry:`, body.id);
+          return res.status(400).json({ success: false, error: 'Cannot create an entry without a name or title' });
+        }
+
         // Check if exists for upsert behavior like IndexedDB put()
         const existing = await Model.findOne({ id: body.id });
         if (existing) {

@@ -55,7 +55,7 @@ const ModulesTab = ({ coursePlanId, onRefresh }) => {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-8">
             {/* Top Actions */}
             <div className="flex items-center justify-between">
                 <p className="text-sm text-on-surface-variant">

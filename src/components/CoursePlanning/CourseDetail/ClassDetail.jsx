@@ -32,6 +32,7 @@ const ClassDetail = () => {
     const navigate = useNavigate();
     const [editing, setEditing] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [isSharingClass, setIsSharingClass] = useState(false);
 
     const cls = useMemo(() => coursePlanService.getClassById(coursePlanId, moduleId, classId), [coursePlanId, moduleId, classId, refreshKey]);
 
@@ -160,10 +161,21 @@ const ClassDetail = () => {
                                     <span className="material-symbols-outlined text-[16px]">edit</span>
                                     Editar clase
                                 </Button>
-                                <Button variant="outline" size="sm" disabled={cls.publishedToMarketplace} onClick={async () => {
-                                    await coursePlanService.shareClass(coursePlanId, moduleId, classId, cls.ownerName);
-                                    setRefreshKey(k => k + 1);
-                                }}>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={cls.publishedToMarketplace}
+                                    loading={isSharingClass}
+                                    onClick={async () => {
+                                        setIsSharingClass(true);
+                                        try {
+                                            await coursePlanService.shareClass(coursePlanId, moduleId, classId, cls.ownerName);
+                                            setRefreshKey(k => k + 1);
+                                        } finally {
+                                            setIsSharingClass(false);
+                                        }
+                                    }}
+                                >
                                     <span className="material-symbols-outlined text-[16px]">forum</span>
                                     {cls.publishedToMarketplace ? 'En el Foro' : 'Compartir al Foro'}
                                 </Button>

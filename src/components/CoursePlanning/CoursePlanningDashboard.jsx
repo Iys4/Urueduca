@@ -82,9 +82,18 @@ const CoursePlanningDashboard = () => {
     }, []);
 
     const handleShare = useCallback(async (id) => {
-        await coursePlanService.share(id, currentUser?.name);
-        // Reload marketplace if visible
-        if (activeTab === 'marketplace') loadMarketplace();
+        setSharingPlans(prev => new Set(prev).add(id));
+        try {
+            await coursePlanService.share(id, currentUser?.name);
+            // Reload marketplace if visible
+            if (activeTab === 'marketplace') loadMarketplace();
+        } finally {
+            setSharingPlans(prev => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
+        }
     }, [currentUser, activeTab, loadMarketplace]);
 
     const handleImportClass = useCallback(async (marketplaceClassId, targetPlanId, targetModuleId) => {
@@ -96,18 +105,18 @@ const CoursePlanningDashboard = () => {
     const hasFilters = search || filterMateria || filterAño;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-on-surface tracking-tight">Planificaciones</h1>
-                    <p className="text-sm text-on-surface-variant mt-0.5">
+                    <h1 className="text-3xl font-bold text-on-surface tracking-tight">Planificaciones</h1>
+                    <p className="text-sm text-on-surface-variant mt-1">
                         Tus cursos reutilizables y el foro compartido
                     </p>
                 </div>
                 {activeTab === 'own' && (
-                    <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-                        <span className="material-symbols-outlined text-[18px]">add</span>
+                    <Button variant="primary" size="lg" onClick={() => setShowCreateModal(true)} className="shadow-lg shadow-primary/20">
+                        <span className="material-symbols-outlined text-[20px]">add</span>
                         Nueva planificación
                     </Button>
                 )}
@@ -174,7 +183,7 @@ const CoursePlanningDashboard = () => {
 
                     {/* Grid */}
                     {ownPlans.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                             {ownPlans.map(course => (
                                 <CourseCard
                                     key={course.id}
@@ -182,6 +191,7 @@ const CoursePlanningDashboard = () => {
                                     onDuplicate={handleDuplicate}
                                     onDelete={handleDelete}
                                     onShare={handleShare}
+                                    isSharing={sharingPlans.has(course.id)}
                                 />
                             ))}
                         </div>
@@ -199,8 +209,8 @@ const CoursePlanningDashboard = () => {
                             description="Creá una nueva o explorá el Foro para clonar una planificación de otro profe."
                             action={
                                 <div className="flex gap-3">
-                                    <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-                                        <span className="material-symbols-outlined text-[18px]">add</span>
+                                    <Button variant="primary" size="lg" onClick={() => setShowCreateModal(true)}>
+                                        <span className="material-symbols-outlined text-[20px]">add</span>
                                         Crear planificación
                                     </Button>
                                     <Button variant="outline" onClick={() => setActiveTab('marketplace')}>

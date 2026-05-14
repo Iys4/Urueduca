@@ -33,9 +33,6 @@ const Dashboard = ({ user }) => {
                 </p>
             </section>
 
-            {/* Urgent alerts first */}
-            <AlertsWidget alerts={alerts} />
-
             {/* Main grid */}
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="flex-1 space-y-6 min-w-0">
