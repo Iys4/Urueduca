@@ -62,11 +62,15 @@ const Sidebar = ({ user }) => {
                             ${isActive ? 'bg-surface-container-high' : 'hover:bg-surface-container'}
                         `}
                     >
-                        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-bold shrink-0">
-                            {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden">
+                            {user?.avatar ? (
+                                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                (user?.name || user?.username || 'U').charAt(0).toUpperCase()
+                            )}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-on-surface truncate">{user?.username || 'Usuario'}</p>
+                            <p className="text-sm font-semibold text-on-surface truncate">{user?.name || user?.username || 'Usuario'}</p>
                             <p className="text-[11px] text-outline truncate">{user?.email || 'Sin email'}</p>
                         </div>
                         <span className="material-symbols-outlined text-[18px] text-outline">settings</span>

@@ -171,19 +171,32 @@ export const coursePlanService = {
 
     getMarketplace: async (filters = {}) => {
         let items = await marketplaceRepository.getAll();
+        
+        // Extract available filters BEFORE filtering
+        const availableMaterias = [...new Set(items.map(p => p.materia).filter(Boolean))].sort();
+        const availableAños = [...new Set(items.map(p => p.año).filter(Boolean))].sort();
+
         if (filters.search) {
             const q = filters.search.toLowerCase();
             items = items.filter(p =>
                 (p.title || '').toLowerCase().includes(q) ||
-                (p.materia || '').toLowerCase().includes(q)
+                (p.materia || '').toLowerCase().includes(q) ||
+                (p.planNombre || '').toLowerCase().includes(q)
             );
         }
         if (filters.materia) items = items.filter(p => p.materia === filters.materia);
         if (filters.año)     items = items.filter(p => p.año === filters.año);
-        return items.map(p => ({
+
+        const enrichedItems = items.map(p => ({
             ...p,
             updatedAtRelative: relativeTime(p.publishedAt || p.updatedAt),
         }));
+
+        return {
+            items: enrichedItems,
+            availableMaterias,
+            availableAños
+        };
     },
 
     importClassFromMarketplace: async (marketplaceClassId, targetPlanId, targetModuleId) => {

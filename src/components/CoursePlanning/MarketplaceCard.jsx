@@ -35,8 +35,9 @@ const MarketplaceCard = ({ cls, onClone, alreadyCloned }) => {
                     <span className="material-symbols-outlined text-[22px]">{icon}</span>
                 </div>
                 <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-wider opacity-70 leading-none mb-1">{cls.planNombre || 'Planificación'}</p>
                     <h3 className="font-bold text-sm leading-tight line-clamp-2">{cls.title}</h3>
-                    <p className="text-[11px] opacity-80 mt-0.5">{cls.materia} · {cls.año}</p>
+                    <p className="text-[11px] opacity-80 mt-1">{cls.materia} · {cls.año}</p>
                 </div>
             </div>
 

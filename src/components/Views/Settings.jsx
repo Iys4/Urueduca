@@ -18,12 +18,15 @@ const Settings = ({ user }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, birthdate, avatar, institution })
             });
+            
+            const data = await response.json();
+            
             if (response.ok) {
-                const updatedUser = await response.json();
-                useAuthStore.setState({ currentUser: { ...user, ...updatedUser } });
+                // The data returned by handleCrud is the updated document
+                useAuthStore.setState({ currentUser: data });
                 alert('Ajustes guardados correctamente');
             } else {
-                alert('Hubo un error al guardar los ajustes');
+                alert(`Error: ${data.error || 'Hubo un error al guardar los ajustes'}`);
             }
         } catch (error) {
             console.error('Error saving settings:', error);

@@ -29,17 +29,22 @@ const CoursePlanningDashboard = () => {
     const [mpSearch,  setMpSearch]  = useState('');
     const [mpFilterMateria, setMpFilterMateria] = useState(null);
     const [mpFilterAño, setMpFilterAño] = useState(null);
+    const [mpAvailableFilters, setMpAvailableFilters] = useState({ materias: [], años: [] });
     const [classToImport, setClassToImport] = useState(null);
 
     const loadMarketplace = useCallback(async () => {
         setMpLoading(true);
         try {
-            const items = await coursePlanService.getMarketplace({ 
+            const { items, availableMaterias, availableAños } = await coursePlanService.getMarketplace({ 
                 search: mpSearch,
                 materia: mpFilterMateria,
                 año: mpFilterAño
             });
             setMpPlans(items);
+            setMpAvailableFilters({ 
+                materias: availableMaterias.map(m => ({ label: m, value: m })),
+                años: availableAños.map(a => ({ label: a, value: a }))
+            });
         } finally {
             setMpLoading(false);
         }
@@ -234,18 +239,18 @@ const CoursePlanningDashboard = () => {
                         )}
                     </div>
 
-                    {(materiaFilters.length > 1 || añoFilters.length > 1) && (
+                    {(mpAvailableFilters.materias.length > 0 || mpAvailableFilters.años.length > 0) && (
                         <div className="flex flex-wrap items-center gap-3">
-                            {materiaFilters.length > 1 && (
+                            {mpAvailableFilters.materias.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <span className="text-[11px] font-bold text-outline uppercase tracking-wider">Materia:</span>
-                                    <FilterChips filters={materiaFilters} activeFilter={mpFilterMateria} onChange={setMpFilterMateria} />
+                                    <FilterChips filters={mpAvailableFilters.materias} activeFilter={mpFilterMateria} onChange={setMpFilterMateria} />
                                 </div>
                             )}
-                            {añoFilters.length > 1 && (
+                            {mpAvailableFilters.años.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <span className="text-[11px] font-bold text-outline uppercase tracking-wider">Año:</span>
-                                    <FilterChips filters={añoFilters} activeFilter={mpFilterAño} onChange={setMpFilterAño} />
+                                    <FilterChips filters={mpAvailableFilters.años} activeFilter={mpFilterAño} onChange={setMpFilterAño} />
                                 </div>
                             )}
                         </div>

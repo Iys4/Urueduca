@@ -21,8 +21,9 @@ export const calendarService = {
         let allEvents = [];
         const { lessons = [], evaluations = [], students = [], calendarEvents = [], courses = [] } = data || {};
 
-        // 1. Classes (Lessons logged)
+        // 1. Classes (Logged lessons AND scheduled weekly classes)
         if (filters.classes) {
+            // Logged lessons
             lessons.forEach(lesson => {
                 const dateObj = new Date(lesson.date);
                 if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
@@ -35,6 +36,42 @@ export const calendarService = {
                         source: 'lesson',
                         color: '#2563eb',
                         icon: 'school'
+                    });
+                }
+            });
+
+            // Weekly Scheduled Classes
+            courses.forEach(course => {
+                if (course.schedule && Array.isArray(course.schedule)) {
+                    course.schedule.forEach(sched => {
+                        const dayIndex = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'].indexOf(sched.day);
+                        if (dayIndex === -1) return;
+
+                        // Find all dates for this day in the given month/year
+                        const firstDayOfMonth = new Date(year, month, 1);
+                        const lastDayOfMonth = new Date(year, month + 1, 0);
+
+                        for (let d = new Date(firstDayOfMonth); d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
+                            if (d.getDay() === dayIndex) {
+                                const dateStr = d.toISOString().split('T')[0];
+                                // Avoid duplication if there's already a logged lesson for this course on this day
+                                const alreadyLogged = lessons.some(l => String(l.course_id) === String(course.id) && l.date === dateStr);
+                                
+                                if (!alreadyLogged) {
+                                    allEvents.push({
+                                        id: `sched-${course.id}-${dateStr}-${sched.startTime}`,
+                                        title: `${course.name}: Clase semanal`,
+                                        date: dateStr,
+                                        type: 'class',
+                                        source: 'schedule',
+                                        color: '#3b82f6', // slightly lighter blue
+                                        icon: 'calendar_today',
+                                        startTime: sched.startTime,
+                                        endTime: sched.endTime
+                                    });
+                                }
+                            }
+                        }
                     });
                 }
             });

@@ -80,9 +80,14 @@ export default async function handler(req, res) {
     };
 
     if (path.startsWith('/api/crud/')) {
-      const resource = path.replace('/api/crud/', '');
+      const parts = path.replace('/api/crud/', '').split('/');
+      const resource = parts[0];
+      const id = parts[1]; // Extract ID if present in path
       const Model = modelMap[resource];
-      if (Model) return await handleCrud(req, res, Model);
+      if (Model) {
+        if (id) req.query.id = id; // Inject into req.query for handleCrud
+        return await handleCrud(req, res, Model);
+      }
     }
 
     // Default legacy support for /api/[resource]
