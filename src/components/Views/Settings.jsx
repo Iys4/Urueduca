@@ -1,7 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../Shared';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const Settings = ({ user }) => {
+    const [name, setName] = useState(user?.name || '');
+    const [email, setEmail] = useState(user?.email || '');
+    const [birthdate, setBirthdate] = useState(user?.birthdate || '');
+    const [avatar, setAvatar] = useState(user?.avatar || '');
+    const [institution, setInstitution] = useState(user?.institution || '');
+    const [isSaving, setIsSaving] = useState(false);
+    
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const response = await fetch(`/api/crud/users/${user.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, birthdate, avatar, institution })
+            });
+            if (response.ok) {
+                const updatedUser = await response.json();
+                useAuthStore.setState({ currentUser: { ...user, ...updatedUser } });
+                alert('Ajustes guardados correctamente');
+            } else {
+                alert('Hubo un error al guardar los ajustes');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            alert('Error de conexión');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             <div>
@@ -20,7 +51,9 @@ const Settings = ({ user }) => {
                             <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-1.5">Nombre Completo</label>
                             <input
                                 type="text"
-                                defaultValue={user?.name || "Juan Pérez"}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Ej. Juan Pérez"
                                 className="w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                             />
                         </div>
@@ -28,7 +61,30 @@ const Settings = ({ user }) => {
                             <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-1.5">Correo Electrónico</label>
                             <input
                                 type="email"
-                                defaultValue={user?.email || "juan@example.com"}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="juan@example.com"
+                                className="w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-1.5">Fecha de Nacimiento</label>
+                            <input
+                                type="date"
+                                value={birthdate}
+                                onChange={(e) => setBirthdate(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all bg-white"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-1.5">Foto de Perfil (URL)</label>
+                            <input
+                                type="url"
+                                value={avatar}
+                                onChange={(e) => setAvatar(e.target.value)}
+                                placeholder="https://ejemplo.com/foto.jpg"
                                 className="w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                             />
                         </div>
@@ -38,7 +94,8 @@ const Settings = ({ user }) => {
                             <label className="block text-xs font-bold text-outline uppercase tracking-wider mb-1.5">Institución Principal</label>
                             <input
                                 type="text"
-                                defaultValue={user?.institution || ""}
+                                value={institution}
+                                onChange={(e) => setInstitution(e.target.value)}
                                 className="w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                             />
                         </div>
@@ -79,36 +136,12 @@ const Settings = ({ user }) => {
                 </div>
             </section>
 
-            {/* Appearance */}
-            <section className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-outline-variant bg-surface-container-low">
-                    <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">Apariencia</h2>
-                </div>
-                <div className="p-6">
-                    <p className="text-xs text-secondary mb-3">Tema de la interfaz</p>
-                    <div className="flex gap-2">
-                        {['Claro', 'Oscuro', 'Sistema'].map((theme, i) => (
-                            <button
-                                key={theme}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                                    i === 0
-                                        ? 'bg-primary-container text-on-primary-container border-primary'
-                                        : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                                }`}
-                            >
-                                {theme}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* Actions */}
             <div className="flex justify-end gap-3 pb-4">
                 <Button variant="ghost">Cancelar</Button>
-                <Button variant="primary">
+                <Button variant="primary" onClick={handleSave} disabled={isSaving}>
                     <span className="material-symbols-outlined text-[18px]">save</span>
-                    Guardar Cambios
+                    {isSaving ? 'Guardando...' : 'Guardar Cambios'}
                 </Button>
             </div>
         </div>

@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String }, // Legacy field
   passwordHash: { type: String }, // New hashed field
   avatar: String,
+  birthdate: String,
+  institution: String,
   role: { type: String, default: 'teacher' },
   isActive: { type: Boolean, default: true },
   lastLoginAt: Date,
