@@ -166,11 +166,23 @@ const PlanningTab = ({ groupId }) => {
                                                     <p className="text-xs text-on-surface-variant mt-0.5 line-clamp-1">{cls.shortDescription}</p>
                                                 )}
                                             </div>
-                                            {isDone ? (
-                                                <span className="text-[10px] font-bold text-success uppercase">Dictada</span>
-                                            ) : (
-                                                <span className="text-[10px] font-bold text-outline uppercase group-hover:text-primary">Marcar dictada</span>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                {isDone ? (
+                                                    <span className="text-[10px] font-bold text-success uppercase">Dictada</span>
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-outline uppercase group-hover:text-primary">Marcar dictada</span>
+                                                )}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/planning/${plan.id}/class/${mod.id}/${cls.id}`);
+                                                    }}
+                                                    className="p-1 rounded-md hover:bg-surface-container text-outline hover:text-primary transition-colors"
+                                                    title="Ver contenido original"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     );
                                 })}

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import NextClassCard from './NextClassCard';
 import AlertsWidget from './AlertsWidget';
 import CoursesSummary from './CoursesSummary';
 import UpcomingEventsWidget from './UpcomingEventsWidget';
@@ -36,7 +35,6 @@ const Dashboard = ({ user }) => {
             {/* Main grid */}
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="flex-1 space-y-6 min-w-0">
-                    <NextClassCard lesson={nextClass} />
                     <CoursesSummary courses={courses} />
                 </div>
                 <div className="w-full lg:w-[320px] space-y-6 shrink-0">
