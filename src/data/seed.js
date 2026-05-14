@@ -13,115 +13,103 @@ import { getDB, STORES } from './db';
 import { mockDb } from './mockDb';
 
 // ─── Marketplace example plans ───────────────────────────────────────────────
-const MARKETPLACE_PLANS = [
+const MARKETPLACE_CLASSES = [
     {
-        id: 'mp-bio-4-celula',
-        nombre: 'Biología 4to — Célula y Metabolismo',
+        id: 'mp-cls-1',
+        title: 'Teoría celular',
+        type: 'mandatory',
+        shortDescription: 'Historia e introducción a la teoría celular. Diferencias entre procariontas y eucariontas.',
         materia: 'Biología',
         año: '4°',
-        descripcion: 'Planificación completa de la unidad de célula y metabolismo para 4to año. Incluye teoría, prácticas de laboratorio y evaluaciones.',
+        planNombre: 'Biología 4to — Célula y Metabolismo',
         ownerName: 'Sistema UruEduca',
-        ownerId: 'system',
         publishedAt: '2026-01-15',
-        updatedAt: '2026-01-15',
-        status: 'active',
-        modules: [
-            {
-                id: 'mp-mod-1',
-                title: 'Unidad 1: La Célula',
-                description: 'Estructura y función celular',
-                order: 1,
-                classes: [
-                    { id: 'mp-cls-1', title: 'Teoría celular', type: 'mandatory', objectives: 'Conocer procariontas y eucariontas', shortDescription: 'Historia e introducción a la teoría celular.' },
-                    { id: 'mp-cls-2', title: 'Organelos celulares', type: 'mandatory', objectives: 'Identificar organelos y sus funciones', shortDescription: 'Estudio de mitocondrias, cloroplastos, núcleo y ribosomas.' },
-                    { id: 'mp-cls-3', title: 'Práctica de microscopía', type: 'optional', objectives: 'Observar células al microscopio', shortDescription: 'Laboratorio: observación de células vegetales y animales.' },
-                    { id: 'mp-cls-4', title: 'Prueba de Célula', type: 'evaluation', shortDescription: 'Evaluación escrita del módulo.', evaluationData: { modalidad: 'escrita', ponderacion: 30 } },
-                ],
-            },
-            {
-                id: 'mp-mod-2',
-                title: 'Unidad 2: Metabolismo Celular',
-                description: 'Fotosíntesis y respiración celular',
-                order: 2,
-                classes: [
-                    { id: 'mp-cls-5', title: 'Fotosíntesis', type: 'mandatory', objectives: 'Comprender la fase luminosa y oscura', shortDescription: 'Ciclo de Calvin y reacciones de la luz.' },
-                    { id: 'mp-cls-6', title: 'Respiración celular', type: 'mandatory', objectives: 'Glucólisis y ciclo de Krebs', shortDescription: 'Obtención de ATP a partir de glucosa.' },
-                    { id: 'mp-cls-7', title: 'Laboratorio de Fotosíntesis', type: 'evaluation', shortDescription: 'Práctica observando Elodea.', evaluationData: { modalidad: 'práctica', ponderacion: 20 } },
-                ],
-            },
-        ],
+        updatedAt: '2026-01-15'
     },
     {
-        id: 'mp-hist-rev-ind',
-        nombre: 'Historia 3ro — Revolución Industrial',
+        id: 'mp-cls-2',
+        title: 'Organelos celulares',
+        type: 'mandatory',
+        shortDescription: 'Estudio de mitocondrias, cloroplastos, núcleo y ribosomas.',
+        materia: 'Biología',
+        año: '4°',
+        planNombre: 'Biología 4to — Célula y Metabolismo',
+        ownerName: 'Sistema UruEduca',
+        publishedAt: '2026-01-15',
+        updatedAt: '2026-01-15'
+    },
+    {
+        id: 'mp-cls-3',
+        title: 'Práctica de microscopía',
+        type: 'optional',
+        shortDescription: 'Laboratorio: observación de células vegetales y animales.',
+        materia: 'Biología',
+        año: '4°',
+        planNombre: 'Biología 4to — Célula y Metabolismo',
+        ownerName: 'Sistema UruEduca',
+        publishedAt: '2026-01-15',
+        updatedAt: '2026-01-15'
+    },
+    {
+        id: 'mp-cls-4',
+        title: 'Fotosíntesis',
+        type: 'mandatory',
+        shortDescription: 'Ciclo de Calvin y reacciones de la luz.',
+        materia: 'Biología',
+        año: '4°',
+        planNombre: 'Biología 4to — Célula y Metabolismo',
+        ownerName: 'Sistema UruEduca',
+        publishedAt: '2026-01-16',
+        updatedAt: '2026-01-16'
+    },
+    {
+        id: 'mp-cls-8',
+        title: 'Europa antes de la industria',
+        type: 'mandatory',
+        shortDescription: 'Análisis del modo de producción pre-industrial. Describir la economía agraria del siglo XVIII.',
         materia: 'Historia',
         año: '3°',
-        descripcion: 'Unidad sobre la Revolución Industrial: causas, desarrollo y consecuencias sociales. Enfocada en el análisis de fuentes primarias.',
+        planNombre: 'Historia 3ro — Revolución Industrial',
         ownerName: 'Sistema UruEduca',
-        ownerId: 'system',
         publishedAt: '2026-01-20',
-        updatedAt: '2026-01-20',
-        status: 'active',
-        modules: [
-            {
-                id: 'mp-mod-3',
-                title: 'Unidad 1: Contexto y Causas',
-                description: 'Europa pre-industrial',
-                order: 1,
-                classes: [
-                    { id: 'mp-cls-8', title: 'Europa antes de la industria', type: 'mandatory', objectives: 'Describir la economía agraria del siglo XVIII', shortDescription: 'Análisis del modo de producción pre-industrial.' },
-                    { id: 'mp-cls-9', title: 'Causas de la Revolución Industrial', type: 'mandatory', objectives: 'Identificar factores tecnológicos, económicos y sociales', shortDescription: 'El papel de Inglaterra: carbón, vapor y textiles.' },
-                ],
-            },
-            {
-                id: 'mp-mod-4',
-                title: 'Unidad 2: Consecuencias Sociales',
-                description: 'Transformaciones de la sociedad',
-                order: 2,
-                classes: [
-                    { id: 'mp-cls-10', title: 'Surgimiento del proletariado', type: 'mandatory', objectives: 'Describir las condiciones laborales de la época', shortDescription: 'Trabajo infantil, jornadas laborales y condiciones de vida.' },
-                    { id: 'mp-cls-11', title: 'Movimiento obrero', type: 'mandatory', objectives: 'Comprender el origen del sindicalismo', shortDescription: 'Los primeros sindicatos y sus demandas.' },
-                    { id: 'mp-cls-12', title: 'Trabajo con fuentes primarias', type: 'evaluation', shortDescription: 'Análisis de documentos de la época en grupo.', evaluationData: { modalidad: 'proyecto', ponderacion: 25 } },
-                ],
-            },
-        ],
+        updatedAt: '2026-01-20'
     },
     {
-        id: 'mp-mat-funciones',
-        nombre: 'Matemática 5to — Funciones y Límites',
+        id: 'mp-cls-9',
+        title: 'Causas de la Revolución Industrial',
+        type: 'mandatory',
+        shortDescription: 'El papel de Inglaterra: carbón, vapor y textiles.',
+        materia: 'Historia',
+        año: '3°',
+        planNombre: 'Historia 3ro — Revolución Industrial',
+        ownerName: 'Sistema UruEduca',
+        publishedAt: '2026-01-20',
+        updatedAt: '2026-01-20'
+    },
+    {
+        id: 'mp-cls-13',
+        title: 'Definición de función',
+        type: 'mandatory',
+        shortDescription: 'Representación algebraica y gráfica. Entender dominio, codominio e imagen.',
         materia: 'Matemática',
         año: '5°',
-        descripcion: 'Introducción al concepto de función, tipos de funciones y límites. Base para el pre-cálculo.',
+        planNombre: 'Matemática 5to — Funciones y Límites',
         ownerName: 'Sistema UruEduca',
-        ownerId: 'system',
         publishedAt: '2026-02-01',
-        updatedAt: '2026-02-01',
-        status: 'active',
-        modules: [
-            {
-                id: 'mp-mod-5',
-                title: 'Unidad 1: Funciones',
-                description: 'Concepto y tipos de funciones',
-                order: 1,
-                classes: [
-                    { id: 'mp-cls-13', title: 'Definición de función', type: 'mandatory', objectives: 'Entender dominio, codominio e imagen', shortDescription: 'Representación algebraica y gráfica.' },
-                    { id: 'mp-cls-14', title: 'Funciones lineales y cuadráticas', type: 'mandatory', objectives: 'Graficar y analizar funciones', shortDescription: 'Parábolas, vértice e intersecciones.' },
-                    { id: 'mp-cls-15', title: 'Funciones exponenciales y logarítmicas', type: 'optional', objectives: 'Reconocer comportamiento asintótico', shortDescription: 'Aplicaciones al crecimiento y decaimiento.' },
-                ],
-            },
-            {
-                id: 'mp-mod-6',
-                title: 'Unidad 2: Límites',
-                description: 'Introducción al concepto de límite',
-                order: 2,
-                classes: [
-                    { id: 'mp-cls-16', title: 'Intuición del límite', type: 'mandatory', objectives: 'Comprender qué es un límite gráficamente', shortDescription: 'Aproximaciones numéricas y geométricas.' },
-                    { id: 'mp-cls-17', title: 'Cálculo de límites algebraicos', type: 'mandatory', objectives: 'Resolver límites indeterminados', shortDescription: 'Factorización, conjugada y L\'Hôpital básico.' },
-                    { id: 'mp-cls-18', title: 'Prueba escrita — Funciones y Límites', type: 'evaluation', shortDescription: 'Evaluación integradora del bloque.', evaluationData: { modalidad: 'escrita', ponderacion: 35 } },
-                ],
-            },
-        ],
+        updatedAt: '2026-02-01'
     },
+    {
+        id: 'mp-cls-16',
+        title: 'Intuición del límite',
+        type: 'mandatory',
+        shortDescription: 'Aproximaciones numéricas y geométricas para comprender qué es un límite.',
+        materia: 'Matemática',
+        año: '5°',
+        planNombre: 'Matemática 5to — Funciones y Límites',
+        ownerName: 'Sistema UruEduca',
+        publishedAt: '2026-02-01',
+        updatedAt: '2026-02-01'
+    }
 ];
 
 // ─── Main seed ────────────────────────────────────────────────────────────────
@@ -201,19 +189,15 @@ export const seedDatabase = async () => {
         if (events.length > 0) await calendarRepository.addAll(events);
         console.log('Calendar events seeded');
 
-        // NOTE: Course plans are NOT seeded for users — they start with an empty list.
-        // Users can browse the Marketplace and clone plans from there.
         console.log('User course plans: starting empty (use Marketplace to get plans)');
     }
 
     // 8. Seed Marketplace (shared, global — only once, regardless of user)
-    const marketplaceCount = await marketplaceRepository.count();
-    if (marketplaceCount === 0) {
-        await marketplaceRepository.addAll(MARKETPLACE_PLANS);
-        console.log('Marketplace seeded with example plans');
-    } else {
-        console.log('Marketplace already seeded, skipping');
-    }
+    // ALWAYS clear marketplace and re-seed to ensure correct structure
+    const db = await getDB();
+    await db.clear(STORES.MARKETPLACE);
+    await marketplaceRepository.addAll(MARKETPLACE_CLASSES);
+    console.log('Marketplace forcefully seeded with individual classes');
 
     console.log('Seeding completed successfully!');
 };

@@ -10,8 +10,10 @@ const LogClassTab = ({ groupId }) => {
     const [summary, setSummary] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedClassId, setSelectedClassId] = useState('');
+    const [isHalfCompleted, setIsHalfCompleted] = useState(false);
     const [saveState, setSaveState] = useState('idle'); // idle | saving | saved
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [conducts, setConducts] = useState({});
     
     const allLessons = useAppStore(state => state.lessons);
     const globalStudents = useAppStore(state => state.students);
@@ -19,6 +21,7 @@ const LogClassTab = ({ groupId }) => {
     const group = useAppStore(state => state.courses.find(c => String(c.id) === String(groupId)));
     const addLesson = useAppStore(state => state.addLesson);
     const markClassCompleted = useAppStore(state => state.markClassCompleted);
+    const markClassHalfCompleted = useAppStore(state => state.markClassHalfCompleted);
 
     const plan = useMemo(() => {
         if (!group?.coursePlanId) return null;
@@ -44,11 +47,18 @@ const LogClassTab = ({ groupId }) => {
     useEffect(() => {
         const data = dashboardService.getStudentsByCourse(groupId);
         setStudents(data);
-        // Initialize attendance
+        // Initialize attendance and conducts
         setAttendance(prev => {
             const next = { ...prev };
             data.forEach(s => {
                 if (next[s.id] === undefined) next[s.id] = true;
+            });
+            return next;
+        });
+        setConducts(prev => {
+            const next = { ...prev };
+            data.forEach(s => {
+                if (next[s.id] === undefined) next[s.id] = ''; // '' means no conduct registered
             });
             return next;
         });
@@ -95,6 +105,7 @@ const LogClassTab = ({ groupId }) => {
             topic: summary.split('\n')[0].substring(0, 50),
             summary: summary,
             attendance: attendance,
+            conducts: conducts,
             attendanceCompleted: true,
             createdAt: new Date().toISOString()
         };
@@ -103,12 +114,17 @@ const LogClassTab = ({ groupId }) => {
 
         // Link with planning if a class was selected
         if (selectedClassId) {
-            await markClassCompleted(group.id, selectedClassId);
+            if (isHalfCompleted) {
+                await markClassHalfCompleted(group.id, selectedClassId);
+            } else {
+                await markClassCompleted(group.id, selectedClassId);
+            }
         }
         
         setSaveState('saved');
         setSummary('');
         setSelectedClassId('');
+        setIsHalfCompleted(false);
         setTimeout(() => setSaveState('idle'), 2000);
     };
 
@@ -150,18 +166,33 @@ const LogClassTab = ({ groupId }) => {
                     <div className="pt-4 border-t border-outline-variant/50">
                         <label className="text-xs font-bold text-outline uppercase tracking-wider mb-2 block px-1">Vincular con Planificación</label>
                         <select
-                            className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm focus:outline-none focus:border-primary transition-all"
+                            className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm focus:outline-none focus:border-primary transition-all mb-3"
                             value={selectedClassId}
                             onChange={e => handleClassSelect(e.target.value)}
                         >
                             <option value="">-- No vincular o clase libre --</option>
-                            {availableClasses.map(cls => (
-                                <option key={cls.id} value={cls.id} disabled={group.completedClasses?.includes(cls.id)}>
-                                    {group.completedClasses?.includes(cls.id) ? '✓ ' : ''}
-                                    {cls.moduleTitle}: {cls.title}
-                                </option>
-                            ))}
+                            {availableClasses.map(cls => {
+                                const isCompleted = group.completedClasses?.includes(cls.id);
+                                const isHalf = group.halfCompletedClasses?.includes(cls.id);
+                                return (
+                                    <option key={cls.id} value={cls.id} disabled={isCompleted}>
+                                        {isCompleted ? '✓ ' : isHalf ? '½ ' : ''}
+                                        {cls.moduleTitle}: {cls.title}
+                                    </option>
+                                );
+                            })}
                         </select>
+                        {selectedClassId && (
+                            <label className="flex items-center gap-2 px-1 mb-2">
+                                <input 
+                                    type="checkbox" 
+                                    className="w-4 h-4 text-primary rounded border-outline-variant focus:ring-primary"
+                                    checked={isHalfCompleted}
+                                    onChange={e => setIsHalfCompleted(e.target.checked)}
+                                />
+                                <span className="text-sm font-medium text-on-surface">Completada a medias (requiere otra clase)</span>
+                            </label>
+                        )}
                         <p className="text-[10px] text-secondary mt-1.5 px-1 italic">
                             * Al seleccionar una clase del plan, se marcará automáticamente como dictada en tu planificación.
                         </p>
@@ -223,6 +254,7 @@ const LogClassTab = ({ groupId }) => {
                             <thead>
                                 <tr className="bg-surface-container-low border-b border-outline-variant">
                                     <th className="text-left py-3 px-4 text-[11px] font-bold text-outline uppercase tracking-wider">Alumno</th>
+                                    <th className="text-center py-3 px-4 text-[11px] font-bold text-outline uppercase tracking-wider">Conducta</th>
                                     <th className="text-right py-3 px-4 text-[11px] font-bold text-outline uppercase tracking-wider">Estado</th>
                                 </tr>
                             </thead>
@@ -236,6 +268,22 @@ const LogClassTab = ({ groupId }) => {
                                                 </div>
                                                 <span className="text-sm font-medium text-on-surface">{student.name}</span>
                                             </div>
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                            <select
+                                                className="px-2 py-1 text-xs border border-outline-variant rounded-md bg-surface text-on-surface focus:border-primary transition-all"
+                                                value={conducts[student.id] || ''}
+                                                onChange={(e) => {
+                                                    setConducts(prev => ({ ...prev, [student.id]: e.target.value }));
+                                                    setSaveState('idle');
+                                                }}
+                                            >
+                                                <option value="">--</option>
+                                                <option value="Excelente">Excelente</option>
+                                                <option value="Buena">Buena</option>
+                                                <option value="Regular">Regular</option>
+                                                <option value="Mala">Mala</option>
+                                            </select>
                                         </td>
                                         <td className="py-3 px-4 text-right">
                                             <button

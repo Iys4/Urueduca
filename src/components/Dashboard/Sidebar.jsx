@@ -36,8 +36,8 @@ const Sidebar = ({ user }) => {
                 {/* Brand */}
                 <div className="px-6 pt-6 pb-2">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                            <span className="material-symbols-outlined text-on-primary text-[18px]">school</span>
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center p-1">
+                            <img src="/LOGO.png" alt="EducaAmigo Logo" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <h1 className="text-[15px] font-bold text-on-surface tracking-tight leading-none">EducaAmigo</h1>

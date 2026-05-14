@@ -3,10 +3,12 @@ import { useAppStore } from '../../store/useAppStore';
 import { Button, Badge, EmptyState } from '../Shared';
 import NewStudentModal from './NewStudentModal';
 import { calculateAge } from '../../utils/dateHelpers';
+import { calculateStudentConduct, getConductColor } from '../../utils/conductHelpers';
 
 const StudentsDashboard = () => {
     const students = useAppStore(state => state.students);
     const courses = useAppStore(state => state.courses);
+    const lessons = useAppStore(state => state.lessons);
     const deleteStudent = useAppStore(state => state.deleteStudent);
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -87,6 +89,7 @@ const StudentsDashboard = () => {
                                     <th className="px-6 py-4 text-[11px] font-bold text-outline uppercase tracking-wider">Alumno</th>
                                     <th className="px-6 py-4 text-[11px] font-bold text-outline uppercase tracking-wider">Grupo</th>
                                     <th className="px-6 py-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden sm:table-cell">Edad</th>
+                                    <th className="px-6 py-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden md:table-cell">Conducta</th>
                                     <th className="px-6 py-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden md:table-cell">Promedio</th>
                                     <th className="px-6 py-4 text-[11px] font-bold text-outline uppercase tracking-wider text-right">Acciones</th>
                                 </tr>
@@ -112,6 +115,18 @@ const StudentsDashboard = () => {
                                         </td>
                                         <td className="px-6 py-4 text-sm text-secondary hidden sm:table-cell">
                                             {student.birthdate ? `${calculateAge(student.birthdate)} años` : '-'}
+                                        </td>
+                                        <td className="px-6 py-4 hidden md:table-cell">
+                                            {(() => {
+                                                const conduct = calculateStudentConduct(student.id, lessons);
+                                                return conduct ? (
+                                                    <span className={`px-2 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md border ${getConductColor(conduct)}`}>
+                                                        {conduct}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-outline">-</span>
+                                                );
+                                            })()}
                                         </td>
                                         <td className="px-6 py-4 hidden md:table-cell">
                                             <div className="flex items-center gap-1.5">

@@ -90,7 +90,13 @@ export const coursePlanService = {
             modules: [],
             publishedToMarketplace: false,
             status: 'draft',
-            curriculumDocument: null,
+            curriculumDocument: {
+                fileName: 'Compilación Programas 2do Ciclo.pdf',
+                file: '/Compilacion_Programas_2do_Ciclo.pdf',
+                uploadDate: new Date().toISOString(),
+                size: '6.2 MB',
+                version: '1.0'
+            },
             createdAt: new Date().toISOString().split('T')[0],
             updatedAt: new Date().toISOString().split('T')[0],
         };
@@ -195,6 +201,7 @@ export const coursePlanService = {
             originalPlanId: undefined,
             materia: undefined,
             año: undefined,
+            type: sourceClass.type || 'mandatory',
             planNombre: undefined,
             ownerName: undefined,
             publishedAt: undefined,
@@ -279,7 +286,7 @@ export const coursePlanService = {
             title: data.title,
             shortDescription: data.shortDescription || '',
             type: data.type || 'mandatory',
-            attachedDocuments: [],
+            attachedDocuments: data.attachedDocuments || [],
             notes: data.notes || '',
             objectives: data.objectives || '',
             tags: [],

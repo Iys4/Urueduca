@@ -192,23 +192,34 @@ export const useAppStore = create((set, get) => ({
 
     // --- Group ↔ CoursePlan progress ---
     assignCoursePlan: async (courseId, coursePlanId) => {
-        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, coursePlanId, completedClasses: [] } : c) });
-        await courseRepository.update(courseId, { coursePlanId, completedClasses: [] });
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, coursePlanId, completedClasses: [], halfCompletedClasses: [] } : c) });
+        await courseRepository.update(courseId, { coursePlanId, completedClasses: [], halfCompletedClasses: [] });
     },
     markClassCompleted: async (courseId, classId) => {
         const course = get().courses.find(c => c.id === courseId);
         if (!course) return;
         const completed = [...(course.completedClasses || [])];
         if (!completed.includes(classId)) completed.push(classId);
-        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, completedClasses: completed } : c) });
-        await courseRepository.update(courseId, { completedClasses: completed });
+        const halfCompleted = (course.halfCompletedClasses || []).filter(id => id !== classId);
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, completedClasses: completed, halfCompletedClasses: halfCompleted } : c) });
+        await courseRepository.update(courseId, { completedClasses: completed, halfCompletedClasses: halfCompleted });
+    },
+    markClassHalfCompleted: async (courseId, classId) => {
+        const course = get().courses.find(c => c.id === courseId);
+        if (!course) return;
+        const halfCompleted = [...(course.halfCompletedClasses || [])];
+        if (!halfCompleted.includes(classId)) halfCompleted.push(classId);
+        const completed = (course.completedClasses || []).filter(id => id !== classId);
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, halfCompletedClasses: halfCompleted, completedClasses: completed } : c) });
+        await courseRepository.update(courseId, { halfCompletedClasses: halfCompleted, completedClasses: completed });
     },
     unmarkClassCompleted: async (courseId, classId) => {
         const course = get().courses.find(c => c.id === courseId);
         if (!course) return;
         const completed = (course.completedClasses || []).filter(id => id !== classId);
-        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, completedClasses: completed } : c) });
-        await courseRepository.update(courseId, { completedClasses: completed });
+        const halfCompleted = (course.halfCompletedClasses || []).filter(id => id !== classId);
+        set({ courses: get().courses.map(c => c.id === courseId ? { ...c, completedClasses: completed, halfCompletedClasses: halfCompleted } : c) });
+        await courseRepository.update(courseId, { completedClasses: completed, halfCompletedClasses: halfCompleted });
     },
     
     // --- Calendar Events ---

@@ -3,6 +3,7 @@ import { Badge, Button } from '../../Shared';
 import { dashboardService } from '../../../services/dashboardService';
 import NewStudentModal from '../../Students/NewStudentModal';
 import { useAppStore } from '../../../store/useAppStore';
+import { calculateStudentConduct, getConductColor } from '../../../utils/conductHelpers';
 
 const RosterTab = ({ groupId }) => {
     const [students, setStudents] = useState([]);
@@ -10,6 +11,7 @@ const RosterTab = ({ groupId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const globalStudents = useAppStore(state => state.students);
+    const lessons = useAppStore(state => state.lessons);
 
     useEffect(() => {
         const data = dashboardService.getStudentsByCourse(groupId);
@@ -60,6 +62,7 @@ const RosterTab = ({ groupId }) => {
                             <tr className="bg-surface-container-low border-b border-outline-variant">
                                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider">Nombre</th>
                                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden sm:table-cell">Contacto</th>
+                                <th className="text-center py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden sm:table-cell">Conducta</th>
                                 <th className="text-right py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider">Promedio</th>
                             </tr>
                         </thead>
@@ -75,6 +78,18 @@ const RosterTab = ({ groupId }) => {
                                         </div>
                                     </td>
                                     <td className="py-2.5 px-4 text-sm text-secondary hidden sm:table-cell">{student.email || 'Sin contacto'}</td>
+                                    <td className="py-2.5 px-4 text-center hidden sm:table-cell">
+                                        {(() => {
+                                            const conduct = calculateStudentConduct(student.id, lessons);
+                                            return conduct ? (
+                                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border ${getConductColor(conduct)}`}>
+                                                    {conduct}
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs text-outline">-</span>
+                                            );
+                                        })()}
+                                    </td>
                                     <td className="py-2.5 px-4 text-right">
                                         <Badge variant={getPerformanceVariant(student.avg)} className="ml-auto">
                                             {student.avg?.toFixed(1) || '0.0'}
