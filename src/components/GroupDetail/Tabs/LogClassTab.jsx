@@ -98,10 +98,15 @@ const LogClassTab = ({ groupId }) => {
 
         setSaveState('saving');
         
+        const nowStr = new Date().toTimeString().substring(0, 5); // "HH:MM"
+        const endStr = new Date(Date.now() + 90 * 60 * 1000).toTimeString().substring(0, 5); // +90 mins
+
         const newLesson = {
             id: Date.now(),
             course_id: String(groupId),
             date: selectedDate,
+            start_time: nowStr,
+            end_time: endStr,
             topic: summary.split('\n')[0].substring(0, 50),
             summary: summary,
             attendance: attendance,

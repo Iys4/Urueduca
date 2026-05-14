@@ -7,7 +7,7 @@ export const alertsEngine = {
         const state = useAppStore.getState();
         const alerts = [];
         const today = getTodayStr();
-        const userCourses = state.courses.filter(c => c.user_id === userId);
+        const userCourses = state.courses.filter(c => c.userId === userId);
         
         let alertIdCounter = 1;
         const addAlert = (type, message, severity, actionLabel, courseId, icon, extraData = {}) => {

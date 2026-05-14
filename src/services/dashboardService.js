@@ -19,7 +19,7 @@ export const dashboardService = {
                 const course = state.courses.find(c => c.id === l.course_id);
                 return { ...l, courseName: course?.name || 'Sin asignar' };
             })
-            .sort((a, b) => a.start_time.localeCompare(b.start_time));
+            .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
     },
 
     getNextClass: (userId = 1) => {
@@ -28,7 +28,7 @@ export const dashboardService = {
         const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         
         // Find first lesson that hasn't ended yet
-        const upcoming = todayLessons.find(l => l.end_time > currentTime);
+        const upcoming = todayLessons.find(l => (l.end_time || '23:59') > currentTime);
         if (upcoming) return upcoming;
         // If all ended, return null
         return todayLessons.length > 0 ? todayLessons[0] : null;
