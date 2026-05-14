@@ -22,6 +22,7 @@ const CoursePlanningDashboard = () => {
     const [filterMateria,   setFilterMateria]   = useState(null);
     const [filterAño,       setFilterAño]       = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [sharingPlans,    setSharingPlans]    = useState(new Set());
 
     // Marketplace async state
     const [mpPlans,   setMpPlans]   = useState([]);
