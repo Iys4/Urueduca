@@ -53,24 +53,6 @@ export const alertsEngine = {
                 }
             });
 
-            // ALERTA TIPO 3: Grupo sin próxima clase planificada (próximos 7 días)
-            const futureLessons = courseLessons.filter(l => {
-                const lDate = new Date(l.date);
-                const tDate = new Date(today);
-                const diffDays = (lDate - tDate) / (1000 * 60 * 60 * 24);
-                return l.date > today && diffDays <= 7;
-            });
-            
-            if (futureLessons.length === 0) {
-                addAlert(
-                    'planning',
-                    `El grupo ${course.name} no tiene próximas clases en agenda para esta semana`,
-                    'medium',
-                    'Agendar clase',
-                    course.id,
-                    'event_busy'
-                );
-            }
 
         });
 
