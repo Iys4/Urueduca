@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import { TabsNav, Button, Badge, AvatarGroup, Dropdown } from '../../Shared';
 import { coursePlanService } from '../../../services/coursePlanService';
-import ProgramTab from './Tabs/ProgramTab';
+
 import ModulesTab from './Tabs/ModulesTab';
 import GlobalClassesTab from './Tabs/GlobalClassesTab';
 import AnepDocumentTab from './Tabs/AnepDocumentTab';
@@ -39,8 +39,7 @@ const CourseDetail = () => {
     const globalClassesCount = course.globalClasses?.length || 0;
 
     const tabs = [
-        { label: 'Programa',          path: '',                icon: 'description' },
-        { label: 'Módulos',           path: 'modules',         icon: 'view_module',      badge: course.modulesCount },
+        { label: 'Módulos',           path: '',                icon: 'view_module',      badge: course.modulesCount },
         { label: 'Clases Opcionales', path: 'global-classes',  icon: 'library_books',    badge: globalClassesCount > 0 ? globalClassesCount : null },
         { label: 'Documento ANEP',    path: 'anep',            icon: 'verified',         badge: course.curriculumDocument ? null : '!' },
         { label: 'Colaboradores',     path: 'collaborators',   icon: 'group',            badge: course.collaboratorsCount > 0 ? course.collaboratorsCount : null },
@@ -103,10 +102,6 @@ const CourseDetail = () => {
                     {/* Stats + Actions */}
                     <div className="flex flex-col items-end gap-4">
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={() => setShowShareModal(true)}>
-                                <span className="material-symbols-outlined text-[16px]">share</span>
-                                Compartir
-                            </Button>
                             <Dropdown items={moreOptions} />
                         </div>
                         <div className="flex gap-6">
@@ -129,8 +124,7 @@ const CourseDetail = () => {
                 <TabsNav tabs={tabs} baseUrl={`/planning/${id}`} />
 
                 <Routes>
-                    <Route path="" element={<ProgramTab course={course} />} />
-                    <Route path="modules" element={<ModulesTab coursePlanId={id} onRefresh={refresh} />} />
+                    <Route path="" element={<ModulesTab coursePlanId={id} onRefresh={refresh} />} />
                     <Route path="global-classes" element={<GlobalClassesTab coursePlanId={id} onRefresh={refresh} />} />
                     <Route path="anep" element={<AnepDocumentTab course={course} onRefresh={refresh} />} />
                     <Route path="collaborators" element={<CollaboratorsTab coursePlanId={id} course={course} onRefresh={refresh} />} />

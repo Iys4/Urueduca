@@ -38,7 +38,6 @@ const CourseCard = ({ course, onDuplicate, onDelete, onShare, isSharing = false 
     const dropdownItems = [
         { icon: 'open_in_new', label: 'Abrir curso', onClick: () => navigate(`/planning/${course.id}`) },
         { icon: 'content_copy', label: 'Duplicar', onClick: () => onDuplicate(course.id) },
-        { icon: 'share', label: isSharing ? 'Compartiendo...' : 'Compartir en Foro', onClick: () => onShare(course.id), disabled: isSharing },
         { separator: true },
         { icon: 'edit', label: 'Editar', onClick: () => navigate(`/planning/${course.id}`) },
         { icon: 'delete', label: 'Eliminar', onClick: () => onDelete(course.id), danger: true },

@@ -61,9 +61,9 @@ const ModulesTab = ({ coursePlanId, onRefresh }) => {
                 <p className="text-sm text-on-surface-variant">
                     <span className="font-semibold text-on-surface">{modules.length}</span> módulo{modules.length !== 1 ? 's' : ''}
                 </p>
-                <Button variant="outline" size="sm" onClick={() => setShowCreateModule(true)}>
-                    <span className="material-symbols-outlined text-[16px]">add</span>
-                    Agregar Módulo
+                <Button variant="primary" size="sm" onClick={() => setShowCreateModule(true)} className="shadow-md shadow-primary/10">
+                    <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                    Nuevo Módulo
                 </Button>
             </div>
 
@@ -147,10 +147,15 @@ const ModulesTab = ({ coursePlanId, onRefresh }) => {
                     )}
 
                     {/* Add class button */}
-                    <div className="mt-3 pt-3 border-t border-outline-variant/50">
-                        <Button variant="ghost" size="sm" onClick={() => setCreateClassFor(mod.id)}>
-                            <span className="material-symbols-outlined text-[16px]">add</span>
-                            Agregar Clase
+                    <div className="mt-6 pt-4 border-t border-outline-variant/30 flex justify-center">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCreateClassFor(mod.id)}
+                            className="w-full max-w-xs hover:bg-primary/5 border-dashed border-2 hover:border-primary transition-all group"
+                        >
+                            <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">add</span>
+                            Agregar Clase al Módulo
                         </Button>
                     </div>
                 </Accordion>

@@ -31,87 +31,90 @@ const ClassPlanCard = ({ cls, moduleId, coursePlanId, onRefresh, isGlobal = fals
         <div
             onClick={handleClick}
             className={`
-                rounded-xl p-4 transition-all group cursor-pointer border
+                bg-surface-container-lowest rounded-2xl p-5 border shadow-sm transition-all duration-300 group cursor-pointer flex flex-col
                 ${isEval
-                    ? 'bg-warning-container/10 border-warning/20 hover:bg-warning-container/25 hover:border-warning/40'
-                    : 'bg-surface-container/30 border-transparent hover:bg-surface-container/50 hover:border-outline-variant/50'
+                    ? 'border-warning/30 hover:border-warning/60 hover:shadow-lg hover:shadow-warning/5'
+                    : 'border-outline-variant hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5'
                 }
             `}
         >
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`material-symbols-outlined text-[16px] ${isEval ? 'text-warning' : tc.variant === 'primary' ? 'text-primary' : 'text-outline'}`}>
-                            {tc.icon}
-                        </span>
-                        <h4 className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">{cls.title}</h4>
-                        <Badge variant={tc.variant} className="text-[9px]">{tc.label}</Badge>
-                    </div>
-                    {cls.shortDescription && (
-                        <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed ml-6">{cls.shortDescription}</p>
-                    )}
+            <div className="flex items-start justify-between gap-4 mb-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    isEval ? 'bg-warning-container/40 text-warning' : tc.variant === 'primary' ? 'bg-primary-container text-primary' : 'bg-surface-container text-outline'
+                }`}>
+                    <span className="material-symbols-outlined text-[22px]">{tc.icon}</span>
                 </div>
-                {/* Navigate arrow */}
-                <span className="material-symbols-outlined text-[18px] text-outline opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5">
-                    chevron_right
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <Badge variant={tc.variant} className="text-[9px] px-1.5 py-0 uppercase font-black">{tc.label}</Badge>
+                        {cls.attachedDocuments?.length > 0 && (
+                            <span className="text-[10px] text-outline font-bold flex items-center gap-0.5">
+                                <span className="material-symbols-outlined text-[12px]">attach_file</span>
+                                {cls.attachedDocuments.length}
+                            </span>
+                        )}
+                    </div>
+                    <h4 className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">
+                        {cls.title}
+                    </h4>
+                </div>
+                <span className="material-symbols-outlined text-[20px] text-outline/30 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0">
+                    arrow_forward
                 </span>
             </div>
 
-            {/* Evaluation quick stats */}
+            {cls.shortDescription && (
+                <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-4 flex-1">
+                    {cls.shortDescription}
+                </p>
+            )}
+
+            {/* Evaluation Details */}
             {isEval && cls.evaluationData && (
-                <div className="flex items-center gap-3 mt-2 ml-6 text-[11px]">
+                <div className="flex flex-wrap items-center gap-2 mb-4 p-2 rounded-lg bg-warning-container/20">
                     {cls.evaluationData.fecha && (
-                        <span className="inline-flex items-center gap-1 text-warning font-semibold">
-                            <span className="material-symbols-outlined text-[13px]">event</span>
+                        <div className="flex items-center gap-1 text-[11px] text-warning font-bold">
+                            <span className="material-symbols-outlined text-[14px]">calendar_month</span>
                             {new Date(cls.evaluationData.fecha).toLocaleDateString('es-UY', { day: 'numeric', month: 'short' })}
-                        </span>
+                        </div>
                     )}
                     {cls.evaluationData.ponderacion > 0 && (
-                        <span className="inline-flex items-center gap-1 text-on-surface-variant font-semibold">
+                        <div className="text-[11px] font-black text-warning bg-warning-container/40 px-2 py-0.5 rounded-md">
                             {cls.evaluationData.ponderacion}%
-                        </span>
+                        </div>
                     )}
                     {cls.evaluationData.modalidad && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-warning-container/30 text-warning font-semibold capitalize">
+                        <div className="text-[11px] font-bold text-on-warning-container uppercase tracking-tight">
                             {cls.evaluationData.modalidad}
-                        </span>
+                        </div>
                     )}
                 </div>
             )}
 
-            {/* Footer: attachments + meta */}
-            <div className="flex items-center justify-between mt-2.5 ml-6">
-                <div className="flex items-center gap-2 flex-wrap">
-                    {(cls.attachedDocuments || []).length > 0 ? (
-                        cls.attachedDocuments.slice(0, 3).map((doc, idx) => {
-                            const ft = fileTypeIcons[doc.type] || fileTypeIcons.other;
-                            return (
-                                <span key={idx} className="inline-flex items-center gap-1 text-[11px] text-on-surface-variant bg-surface-container-high/60 px-2 py-0.5 rounded-full">
-                                    <span className={`material-symbols-outlined text-[12px] ${ft.color}`}>{ft.icon}</span>
-                                    <span className="truncate max-w-[80px]">{doc.name}</span>
-                                </span>
-                            );
-                        })
-                    ) : (
-                        <span className="text-[11px] text-outline italic">Sin adjuntos</span>
-                    )}
-                    {(cls.attachedDocuments || []).length > 3 && (
-                        <span className="text-[10px] text-outline font-semibold">+{(cls.attachedDocuments || []).length - 3}</span>
-                    )}
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30 mt-auto">
+                <div className="flex -space-x-2 overflow-hidden">
+                    {(cls.attachedDocuments || []).slice(0, 3).map((doc, idx) => {
+                        const ft = fileTypeIcons[doc.type] || fileTypeIcons.other;
+                        return (
+                            <div key={idx} className="w-6 h-6 rounded-md bg-surface-container-high border-2 border-surface-container-lowest flex items-center justify-center shadow-sm" title={doc.name}>
+                                <span className={`material-symbols-outlined text-[14px] ${ft.color}`}>{ft.icon}</span>
+                            </div>
+                        );
+                    })}
                 </div>
                 {cls.updatedAt && (
-                    <span className="text-[10px] text-outline flex items-center gap-1 shrink-0 ml-2">
-                        <span className="material-symbols-outlined text-[12px]">schedule</span>
+                    <span className="text-[10px] text-outline font-semibold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px]">update</span>
                         {coursePlanService.relativeTime(cls.updatedAt)}
                     </span>
                 )}
             </div>
 
-            {/* Notes indicator */}
+            {/* Notes snippet */}
             {cls.notes && (
-                <div className="mt-2 ml-6 flex items-start gap-1.5 text-[11px] text-on-surface-variant bg-warning-container/20 rounded-lg px-2.5 py-1.5">
-                    <span className="material-symbols-outlined text-[13px] text-warning shrink-0 mt-0.5">sticky_note_2</span>
-                    <span className="line-clamp-1">{cls.notes}</span>
+                <div className="mt-3 flex items-start gap-2 text-[10px] text-on-surface-variant italic bg-surface-container/50 rounded-lg p-2 border-l-2 border-warning/30">
+                    <span className="line-clamp-1">"{cls.notes}"</span>
                 </div>
             )}
         </div>

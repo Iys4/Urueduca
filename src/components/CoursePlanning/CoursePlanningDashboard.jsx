@@ -297,10 +297,10 @@ const CoursePlanningDashboard = () => {
                 <div className="fixed bottom-24 lg:bottom-8 right-6 z-40">
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="w-14 h-14 rounded-2xl bg-primary text-on-primary shadow-lg hover:shadow-xl hover:bg-primary-hover active:scale-95 flex items-center justify-center transition-all duration-200"
+                        className="w-16 h-16 rounded-full bg-primary text-on-primary shadow-2xl shadow-primary/40 hover:shadow-primary/60 hover:-translate-y-1 active:scale-95 flex items-center justify-center transition-all duration-300 group"
                         aria-label="Crear nueva planificación"
                     >
-                        <span className="material-symbols-outlined text-[28px]">add</span>
+                        <span className="material-symbols-outlined text-[32px] group-hover:rotate-90 transition-transform duration-500">add</span>
                     </button>
                 </div>
             )}

@@ -89,7 +89,7 @@ export const coursePlanService = {
             collaborators: [],
             modules: [],
             publishedToMarketplace: false,
-            status: 'draft',
+            status: 'active',
             curriculumDocument: {
                 fileName: 'Compilación Programas 2do Ciclo.pdf',
                 file: '/Compilacion_Programas_2do_Ciclo.pdf',
@@ -121,7 +121,7 @@ export const coursePlanService = {
             id: generateId('cp'),
             nombre: `${original.nombre} (copia)`,
             publishedToMarketplace: false,
-            status: 'draft',
+            status: 'active',
             collaborators: [],
             createdAt: new Date().toISOString().split('T')[0],
             updatedAt: new Date().toISOString().split('T')[0],
