@@ -160,6 +160,13 @@ const ClassDetail = () => {
                                     <span className="material-symbols-outlined text-[16px]">edit</span>
                                     Editar clase
                                 </Button>
+                                <Button variant="outline" size="sm" disabled={cls.publishedToMarketplace} onClick={async () => {
+                                    await coursePlanService.shareClass(coursePlanId, moduleId, classId, cls.ownerName);
+                                    setRefreshKey(k => k + 1);
+                                }}>
+                                    <span className="material-symbols-outlined text-[16px]">forum</span>
+                                    {cls.publishedToMarketplace ? 'En el Foro' : 'Compartir al Foro'}
+                                </Button>
                                 <Button variant="outline" size="sm" onClick={() => {
                                     coursePlanService.createClass(moduleId, { ...cls, title: `${cls.title} (copia)` });
                                     setRefreshKey(k => k + 1);

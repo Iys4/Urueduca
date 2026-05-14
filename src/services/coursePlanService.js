@@ -131,67 +131,86 @@ export const coursePlanService = {
 
     /* ─── Marketplace ─── */
 
-    share: async (planId, ownerName) => {
+    shareClass: async (coursePlanId, moduleId, classId, ownerName) => {
         const state = useAppStore.getState();
-        const plan = state.coursePlans.find(cp => cp.id === planId);
+        const plan = state.coursePlans.find(cp => cp.id === coursePlanId);
         if (!plan) return null;
+        const mod = (plan.modules || []).find(m => m.id === moduleId);
+        if (!mod) return null;
+        const cls = (mod.classes || []).find(c => c.id === classId);
+        if (!cls) return null;
 
-        const marketplacePlan = {
-            ...plan,
-            id: `mp-${planId}`,
-            originalPlanId: planId,
+        const marketplaceClass = {
+            ...cls,
+            id: `mp-cls-${classId}`,
+            originalClassId: classId,
+            originalPlanId: plan.id,
+            materia: plan.materia,
+            año: plan.año,
+            planNombre: plan.nombre,
             ownerName: ownerName || plan.ownerName || 'Anónimo',
             publishedAt: new Date().toISOString().split('T')[0],
             updatedAt: new Date().toISOString().split('T')[0],
         };
-        await marketplaceRepository.publish(marketplacePlan);
-        await useAppStore.getState().updateCoursePlan(planId, { publishedToMarketplace: true });
-        return marketplacePlan;
+        await marketplaceRepository.publish(marketplaceClass);
+        // Marcamos la clase como publicada en el estado si hiciera falta
+        const updatedModules = (plan.modules || []).map(m => 
+            m.id === moduleId ? { ...m, classes: (m.classes || []).map(c => 
+                c.id === classId ? { ...c, publishedToMarketplace: true } : c
+            )} : m
+        );
+        await useAppStore.getState().updateCoursePlan(plan.id, { modules: updatedModules });
+        return marketplaceClass;
     },
 
     getMarketplace: async (filters = {}) => {
-        let plans = await marketplaceRepository.getAll();
+        let items = await marketplaceRepository.getAll();
         if (filters.search) {
             const q = filters.search.toLowerCase();
-            plans = plans.filter(p =>
-                (p.nombre || '').toLowerCase().includes(q) ||
+            items = items.filter(p =>
+                (p.title || '').toLowerCase().includes(q) ||
                 (p.materia || '').toLowerCase().includes(q)
             );
         }
-        if (filters.materia) plans = plans.filter(p => p.materia === filters.materia);
-        if (filters.año)     plans = plans.filter(p => p.año === filters.año);
-        return plans.map(p => ({
+        if (filters.materia) items = items.filter(p => p.materia === filters.materia);
+        if (filters.año)     items = items.filter(p => p.año === filters.año);
+        return items.map(p => ({
             ...p,
-            modulesCount: (p.modules || []).length,
-            classesCount: (p.modules || []).reduce((sum, m) => sum + (m.classes || []).length, 0),
             updatedAtRelative: relativeTime(p.publishedAt || p.updatedAt),
         }));
     },
 
-    cloneFromMarketplace: async (marketplacePlanId, userId, ownerName) => {
-        const source = await marketplaceRepository.getById(marketplacePlanId);
-        if (!source) return null;
-        const cloned = {
-            ...source,
-            id: generateId('cp'),
-            userId,
-            ownerName,
-            publishedToMarketplace: false,
-            nombre: source.nombre,
-            clonedFrom: marketplacePlanId,
-            clonedFromAuthor: source.ownerName,
-            status: 'draft',
-            collaborators: [],
+    importClassFromMarketplace: async (marketplaceClassId, targetPlanId, targetModuleId) => {
+        const sourceClass = await marketplaceRepository.getById(marketplaceClassId);
+        if (!sourceClass) return null;
+        
+        const state = useAppStore.getState();
+        const targetPlan = state.coursePlans.find(cp => cp.id === targetPlanId);
+        if (!targetPlan) return null;
+
+        const clonedClass = {
+            ...sourceClass,
+            id: generateId('cls'),
+            originalClassId: undefined,
+            originalPlanId: undefined,
+            materia: undefined,
+            año: undefined,
+            planNombre: undefined,
+            ownerName: undefined,
+            publishedAt: undefined,
+            updatedAtRelative: undefined,
+            clonedFrom: marketplaceClassId,
+            clonedFromAuthor: sourceClass.ownerName,
             createdAt: new Date().toISOString().split('T')[0],
             updatedAt: new Date().toISOString().split('T')[0],
-            modules: (source.modules || []).map(m => ({
-                ...m,
-                id: generateId('mod'),
-                classes: (m.classes || []).map(c => ({ ...c, id: generateId('cls') })),
-            })),
         };
-        await useAppStore.getState().addCoursePlan(cloned);
-        return cloned;
+        
+        const updatedModules = (targetPlan.modules || []).map(m =>
+            m.id === targetModuleId ? { ...m, classes: [...(m.classes || []), clonedClass] } : m
+        );
+
+        await useAppStore.getState().updateCoursePlan(targetPlan.id, { modules: updatedModules });
+        return clonedClass;
     },
 
     /* ─── Modules (embedded in plan) ─── */

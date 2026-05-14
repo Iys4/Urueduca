@@ -15,9 +15,6 @@ const CourseCard = ({ course, onDuplicate, onDelete, onShare }) => {
 
     const dropdownItems = [
         { icon: 'open_in_new', label: 'Abrir curso', onClick: () => navigate(`/planning/${course.id}`) },
-        course.publishedToMarketplace
-            ? { icon: 'forum', label: 'Ya publicado en el Foro', onClick: () => {}, disabled: true }
-            : { icon: 'share', label: 'Compartir al Foro', onClick: () => onShare?.(course.id) },
         { icon: 'content_copy', label: 'Duplicar', onClick: () => onDuplicate(course.id) },
         { separator: true },
         { icon: 'edit', label: 'Editar', onClick: () => navigate(`/planning/${course.id}`) },

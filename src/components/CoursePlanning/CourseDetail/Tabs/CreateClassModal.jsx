@@ -19,7 +19,7 @@ const typeOptions = [
 const CreateClassModal = ({ isOpen, onClose, onCreated, defaultType = 'mandatory' }) => {
     const initialForm = {
         title: '', shortDescription: '', type: defaultType, notes: '', attachedDocuments: [],
-        evaluationData: { fecha: '', ponderacion: 0, modalidad: 'escrita', criterios: '' },
+        evaluationData: { ponderacion: 0, modalidad: 'escrita', criterios: '' },
     };
     const [form, setForm] = useState(initialForm);
     const [errors, setErrors] = useState({});
@@ -171,16 +171,7 @@ const CreateClassModal = ({ isOpen, onClose, onCreated, defaultType = 'mandatory
                             Datos de Evaluación
                         </h3>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-on-surface-variant mb-1.5">Fecha</label>
-                                <input
-                                    type="date"
-                                    value={form.evaluationData.fecha}
-                                    onChange={(e) => handleEvalChange('fecha', e.target.value)}
-                                    className={fieldClass('fecha')}
-                                />
-                            </div>
+                        <div className="grid grid-cols-1 gap-4">
                             <div>
                                 <label className="block text-xs font-semibold text-on-surface-variant mb-1.5">Ponderación (%)</label>
                                 <input

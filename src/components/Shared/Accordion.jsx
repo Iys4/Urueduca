@@ -23,7 +23,7 @@ const Accordion = ({ title, subtitle, badges, actions, defaultOpen = false, chil
     }, [isOpen]);
 
     return (
-        <div className={`border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest ${className}`}>
+        <div className={`border border-outline-variant rounded-xl bg-surface-container-lowest ${className}`}>
             {/* Header */}
             <div
                 onClick={() => setIsOpen(!isOpen)}
@@ -53,7 +53,7 @@ const Accordion = ({ title, subtitle, badges, actions, defaultOpen = false, chil
             <div
                 ref={contentRef}
                 style={{ maxHeight: height }}
-                className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
+                className={`transition-[max-height] duration-300 ease-in-out ${height === 'auto' ? 'overflow-visible' : 'overflow-hidden'}`}
             >
                 <div className="px-5 pb-5 pt-1 border-t border-outline-variant/50">
                     {children}

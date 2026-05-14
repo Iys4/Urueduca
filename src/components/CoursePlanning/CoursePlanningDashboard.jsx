@@ -3,6 +3,7 @@ import { Button, EmptyState, SearchInput, FilterChips } from '../Shared';
 import CourseCard from './CourseCard';
 import MarketplaceCard from './MarketplaceCard';
 import CreateCourseModal from './CreateCourseModal';
+import ImportClassModal from './ImportClassModal';
 import { coursePlanService } from '../../services/coursePlanService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
@@ -26,16 +27,23 @@ const CoursePlanningDashboard = () => {
     const [mpPlans,   setMpPlans]   = useState([]);
     const [mpLoading, setMpLoading] = useState(false);
     const [mpSearch,  setMpSearch]  = useState('');
+    const [mpFilterMateria, setMpFilterMateria] = useState(null);
+    const [mpFilterAño, setMpFilterAño] = useState(null);
+    const [classToImport, setClassToImport] = useState(null);
 
     const loadMarketplace = useCallback(async () => {
         setMpLoading(true);
         try {
-            const plans = await coursePlanService.getMarketplace({ search: mpSearch });
-            setMpPlans(plans);
+            const items = await coursePlanService.getMarketplace({ 
+                search: mpSearch,
+                materia: mpFilterMateria,
+                año: mpFilterAño
+            });
+            setMpPlans(items);
         } finally {
             setMpLoading(false);
         }
-    }, [mpSearch]);
+    }, [mpSearch, mpFilterMateria, mpFilterAño]);
 
     useEffect(() => {
         if (activeTab === 'marketplace') loadMarketplace();
@@ -74,10 +82,11 @@ const CoursePlanningDashboard = () => {
         if (activeTab === 'marketplace') loadMarketplace();
     }, [currentUser, activeTab, loadMarketplace]);
 
-    const handleClone = useCallback(async (marketplacePlanId) => {
-        await coursePlanService.cloneFromMarketplace(marketplacePlanId, currentUser?.id, currentUser?.name);
+    const handleImportClass = useCallback(async (marketplaceClassId, targetPlanId, targetModuleId) => {
+        await coursePlanService.importClassFromMarketplace(marketplaceClassId, targetPlanId, targetModuleId);
         setActiveTab('own');
-    }, [currentUser]);
+        setClassToImport(null);
+    }, []);
 
     const hasFilters = search || filterMateria || filterAño;
 
@@ -206,16 +215,41 @@ const CoursePlanningDashboard = () => {
                     <div className="flex items-center gap-3 p-4 bg-primary-container/30 border border-primary/20 rounded-xl">
                         <span className="material-symbols-outlined text-[24px] text-primary">forum</span>
                         <p className="text-sm text-on-surface-variant">
-                            Recursos pedagógicos compartidos por otros profesores. Clonalos y editalos libremente.
+                            Recursos y clases compartidas por otros profesores. Importalas a tus planificaciones.
                         </p>
                     </div>
 
-                    <SearchInput
-                        value={mpSearch}
-                        onChange={setMpSearch}
-                        placeholder="Buscar en el foro..."
-                        className="max-w-md"
-                    />
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <SearchInput
+                            value={mpSearch}
+                            onChange={setMpSearch}
+                            placeholder="Buscar clase en el foro..."
+                            className="flex-1 max-w-md"
+                        />
+                        {(mpSearch || mpFilterMateria || mpFilterAño) && (
+                            <Button variant="ghost" size="sm" onClick={() => { setMpSearch(''); setMpFilterMateria(null); setMpFilterAño(null); }}>
+                                <span className="material-symbols-outlined text-[16px]">filter_alt_off</span>
+                                Limpiar
+                            </Button>
+                        )}
+                    </div>
+
+                    {(materiaFilters.length > 1 || añoFilters.length > 1) && (
+                        <div className="flex flex-wrap items-center gap-3">
+                            {materiaFilters.length > 1 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] font-bold text-outline uppercase tracking-wider">Materia:</span>
+                                    <FilterChips filters={materiaFilters} activeFilter={mpFilterMateria} onChange={setMpFilterMateria} />
+                                </div>
+                            )}
+                            {añoFilters.length > 1 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[11px] font-bold text-outline uppercase tracking-wider">Año:</span>
+                                    <FilterChips filters={añoFilters} activeFilter={mpFilterAño} onChange={setMpFilterAño} />
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {mpLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -223,12 +257,12 @@ const CoursePlanningDashboard = () => {
                         </div>
                     ) : mpPlans.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {mpPlans.map(plan => (
+                            {mpPlans.map(cls => (
                                 <MarketplaceCard
-                                    key={plan.id}
-                                    plan={plan}
-                                    onClone={handleClone}
-                                    alreadyCloned={coursePlans.some(cp => cp.clonedFrom === plan.id)}
+                                    key={cls.id}
+                                    cls={cls}
+                                    onClone={(id) => setClassToImport(mpPlans.find(c => c.id === id))}
+                                    alreadyCloned={coursePlans.some(cp => (cp.modules || []).some(m => (m.classes || []).some(c => c.clonedFrom === cls.id)))}
                                 />
                             ))}
                         </div>
@@ -236,7 +270,7 @@ const CoursePlanningDashboard = () => {
                         <EmptyState
                             icon="forum"
                             title="Foro vacío"
-                            description="Aún no hay planificaciones publicadas. ¡Sé el primero en compartir la tuya!"
+                            description="Aún no hay clases publicadas que coincidan con tu búsqueda."
                         />
                     )}
                 </div>
@@ -261,6 +295,13 @@ const CoursePlanningDashboard = () => {
                 onCreated={() => {}}
                 userId={currentUser?.id}
                 ownerName={currentUser?.name}
+            />
+
+            <ImportClassModal
+                isOpen={!!classToImport}
+                onClose={() => setClassToImport(null)}
+                marketplaceClass={classToImport}
+                onImport={handleImportClass}
             />
         </div>
     );
