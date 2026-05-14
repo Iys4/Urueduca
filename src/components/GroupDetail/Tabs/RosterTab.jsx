@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button } from '../../Shared';
+import { Badge, Button, Dropdown } from '../../Shared';
 import { dashboardService } from '../../../services/dashboardService';
 import NewStudentModal from '../../Students/NewStudentModal';
 import { useAppStore } from '../../../store/useAppStore';
@@ -9,6 +9,8 @@ const RosterTab = ({ groupId }) => {
     const [students, setStudents] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const updateStudent = useAppStore(state => state.updateStudent);
+    const deleteStudent = useAppStore(state => state.deleteStudent);
 
     const globalStudents = useAppStore(state => state.students);
     const lessons = useAppStore(state => state.lessons);
@@ -64,6 +66,7 @@ const RosterTab = ({ groupId }) => {
                                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden sm:table-cell">Contacto</th>
                                 <th className="text-center py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider hidden sm:table-cell">Conducta</th>
                                 <th className="text-right py-2.5 px-4 text-[11px] font-bold text-outline uppercase tracking-wider">Promedio</th>
+                                <th className="w-10"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-outline-variant">
@@ -94,6 +97,16 @@ const RosterTab = ({ groupId }) => {
                                         <Badge variant={getPerformanceVariant(student.avg)} className="ml-auto">
                                             {student.avg?.toFixed(1) || '0.0'}
                                         </Badge>
+                                    </td>
+                                    <td className="py-2.5 px-4 text-right">
+                                        <Dropdown
+                                            items={[
+                                                { icon: 'edit', label: 'Editar alumno', onClick: () => {} },
+                                                { icon: 'person_remove', label: 'Quitar del grupo', danger: true, onClick: () => updateStudent(student.id, { course_id: null }) },
+                                                { separator: true },
+                                                { icon: 'delete', label: 'Eliminar del sistema', danger: true, onClick: () => { if(confirm('¿Seguro? Se borrará de todos tus grupos.')) deleteStudent(student.id); } },
+                                            ]}
+                                        />
                                     </td>
                                 </tr>
                             ))}

@@ -116,6 +116,10 @@ export const useAppStore = create((set, get) => ({
         set({ evaluations: get().evaluations.map(e => e.id === id ? { ...e, ...data } : e) });
         await evaluationRepository.update(id, data);
     },
+    deleteEvaluation: async (id) => {
+        set({ evaluations: get().evaluations.filter(e => e.id !== id) });
+        await evaluationRepository.delete(id);
+    },
     updateStudentGrade: async (evalId, studentId, gradeData) => {
         const evals = get().evaluations;
         const targetEval = evals.find(e => e.id === evalId);
@@ -174,6 +178,10 @@ export const useAppStore = create((set, get) => ({
         const updatedLesson = { ...targetLesson, attendance: updatedAttendance, attendanceCompleted: true };
         set({ lessons: lessons.map(l => l.id === lessonId ? updatedLesson : l) });
         await lessonRepository.update(lessonId, { attendance: updatedAttendance, attendanceCompleted: true });
+    },
+    deleteLesson: async (lessonId) => {
+        set({ lessons: get().lessons.filter(l => l.id !== lessonId) });
+        await lessonRepository.delete(lessonId);
     },
 
     // --- Course Plans ---

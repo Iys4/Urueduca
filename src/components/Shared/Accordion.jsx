@@ -3,13 +3,13 @@ import React, { useState, useRef, useEffect } from 'react';
 const Accordion = ({ title, subtitle, badges, actions, defaultOpen = false, children, className = '' }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const contentRef = useRef(null);
-    const [height, setHeight] = useState(defaultOpen ? 'auto' : '0px');
+    const [height, setHeight] = useState(defaultOpen ? 'none' : '0px');
 
     useEffect(() => {
         if (isOpen) {
             setHeight(`${contentRef.current?.scrollHeight || 0}px`);
-            // After transition, set to auto so content can grow
-            const timer = setTimeout(() => setHeight('auto'), 300);
+            // After transition, set to none so content can grow
+            const timer = setTimeout(() => setHeight('none'), 300);
             return () => clearTimeout(timer);
         } else {
             // First set the explicit height, then collapse
@@ -53,7 +53,7 @@ const Accordion = ({ title, subtitle, badges, actions, defaultOpen = false, chil
             <div
                 ref={contentRef}
                 style={{ maxHeight: height }}
-                className={`transition-[max-height] duration-300 ease-in-out ${height === 'auto' ? 'overflow-visible' : 'overflow-hidden'}`}
+                className={`transition-[max-height] duration-300 ease-in-out ${height === 'none' ? 'overflow-visible' : 'overflow-hidden'}`}
             >
                 <div className="px-5 pb-5 pt-1 border-t border-outline-variant/50">
                     {children}

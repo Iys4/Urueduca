@@ -39,8 +39,6 @@ const GroupsDashboard = () => {
                     <h1 className="text-2xl font-bold text-on-surface tracking-tight">Mis Grupos</h1>
                     <p className="text-sm text-secondary mt-1">
                         {groups.length} grupos activos
-                        {urgentCount > 0 && <span className="text-error font-semibold"> · {urgentCount} requieren atención</span>}
-                        {todayCount > 0 && <span className="text-primary font-semibold"> · {todayCount} con clase hoy</span>}
                     </p>
                 </div>
                 
@@ -65,26 +63,6 @@ const GroupsDashboard = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                    </div>
-                    {/* Status filter pills */}
-                    <div className="flex gap-1 bg-surface-container rounded-lg p-1">
-                        {[
-                            { value: 'all', label: 'Todos' },
-                            { value: 'urgent', label: 'Urgente' },
-                            { value: 'attention', label: 'Hoy' },
-                        ].map(f => (
-                            <button
-                                key={f.value}
-                                onClick={() => setFilterStatus(f.value)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                                    filterStatus === f.value
-                                        ? 'bg-surface-container-lowest text-on-surface shadow-sm'
-                                        : 'text-outline hover:text-on-surface'
-                                }`}
-                            >
-                                {f.label}
-                            </button>
-                        ))}
                     </div>
                 </div>
 

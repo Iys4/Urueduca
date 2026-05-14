@@ -11,6 +11,8 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
     const updateStudent = useAppStore(state => state.updateStudent);
 
     const [mode, setMode] = useState('new'); // 'new' | 'existing'
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const [sortBy, setSortBy] = useState('name'); // 'name' | 'age'
     
     // New Student Form
     const [formData, setFormData] = useState({
@@ -24,6 +26,18 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
     // Existing Student Search
     const [searchExisting, setSearchExisting] = useState('');
     const [filterAño, setFilterAño] = useState(null);
+
+    const calculateAge = (birthdate) => {
+        if (!birthdate) return null;
+        const today = new Date();
+        const birthDate = new Date(birthdate);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
 
     useEffect(() => {
         if (initialData) {
@@ -45,6 +59,7 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
         setErrors({});
         setSearchExisting('');
         setFilterAño(null);
+        setSelectedStudents([]);
     }, [initialData, forceGroupId, isOpen]);
 
     const añoFilters = useMemo(() => {
@@ -53,7 +68,7 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
     }, [courses]);
 
     const filteredExisting = useMemo(() => {
-        return globalStudents.filter(s => {
+        let result = globalStudents.filter(s => {
             // No mostrar los que ya están en el grupo actual
             if (forceGroupId && s.course_id === parseInt(forceGroupId)) return false;
             
@@ -67,7 +82,20 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
             
             return matchName && matchAño;
         });
-    }, [globalStudents, searchExisting, filterAño, forceGroupId, courses]);
+
+        // Sorting
+        result.sort((a, b) => {
+            if (sortBy === 'name') return a.name.localeCompare(b.name);
+            if (sortBy === 'age') {
+                const ageA = calculateAge(a.birthdate) || 0;
+                const ageB = calculateAge(b.birthdate) || 0;
+                return ageB - ageA; // Descending age
+            }
+            return 0;
+        });
+
+        return result;
+    }, [globalStudents, searchExisting, filterAño, forceGroupId, courses, sortBy]);
 
     if (!isOpen) return null;
 
@@ -99,8 +127,23 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
         onClose();
     };
 
-    const handleAddExisting = async (student) => {
-        await updateStudent(student.id, { ...student, course_id: parseInt(forceGroupId) });
+    const toggleStudentSelection = (studentId) => {
+        setSelectedStudents(prev => 
+            prev.includes(studentId) 
+                ? prev.filter(id => id !== studentId) 
+                : [...prev, studentId]
+        );
+    };
+
+    const handleAddSelected = async () => {
+        if (selectedStudents.length === 0) return;
+        
+        for (const studentId of selectedStudents) {
+            const student = globalStudents.find(s => s.id === studentId);
+            if (student) {
+                await updateStudent(student.id, { ...student, course_id: parseInt(forceGroupId) });
+            }
+        }
         onClose();
     };
 
@@ -199,31 +242,68 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
                                 onChange={setSearchExisting}
                                 placeholder="Buscar por nombre..."
                             />
-                            {añoFilters.length > 0 && (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[11px] font-bold text-outline uppercase tracking-wider">Año:</span>
-                                    <FilterChips filters={añoFilters} activeFilter={filterAño} onChange={setFilterAño} />
+                            
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                                {añoFilters.length > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] font-bold text-outline uppercase tracking-wider">Año:</span>
+                                        <FilterChips filters={añoFilters} activeFilter={filterAño} onChange={setFilterAño} />
+                                    </div>
+                                )}
+                                
+                                <div className="flex items-center gap-1 bg-surface-container p-0.5 rounded-lg ml-auto">
+                                    <button 
+                                        onClick={() => setSortBy('name')}
+                                        className={`px-2 py-1 text-[10px] font-bold rounded ${sortBy === 'name' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-outline'}`}
+                                    >Nombre</button>
+                                    <button 
+                                        onClick={() => setSortBy('age')}
+                                        className={`px-2 py-1 text-[10px] font-bold rounded ${sortBy === 'age' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-outline'}`}
+                                    >Edad</button>
                                 </div>
-                            )}
+                            </div>
 
                             <div className="space-y-2 mt-4 max-h-60 overflow-y-auto pr-2">
                                 {filteredExisting.length > 0 ? (
                                     filteredExisting.map(student => {
                                         const sCourse = courses.find(c => c.id === student.course_id);
+                                        const age = calculateAge(student.birthdate);
+                                        const isSelected = selectedStudents.includes(student.id);
+                                        
                                         return (
-                                            <div key={student.id} className="flex items-center justify-between p-3 rounded-xl border border-outline-variant bg-surface-container-lowest hover:bg-surface-container/50 transition-colors">
+                                            <div 
+                                                key={student.id} 
+                                                onClick={() => toggleStudentSelection(student.id)}
+                                                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                                                    isSelected 
+                                                        ? 'bg-primary/5 border-primary ring-1 ring-primary/20' 
+                                                        : 'border-outline-variant bg-surface-container-lowest hover:bg-surface-container/50'
+                                                }`}
+                                            >
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold shrink-0">
-                                                        {student.name.charAt(0)}
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+                                                        isSelected ? 'bg-primary text-on-primary' : 'bg-primary-container text-on-primary-container'
+                                                    }`}>
+                                                        {isSelected ? (
+                                                            <span className="material-symbols-outlined text-[18px]">check</span>
+                                                        ) : (
+                                                            student.name.charAt(0)
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-semibold text-on-surface leading-tight">{student.name}</p>
-                                                        <p className="text-[11px] text-outline mt-0.5">{sCourse ? `${sCourse.name} (${sCourse.año})` : 'Sin grupo asignado'}</p>
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <p className="text-[11px] text-outline">{sCourse ? `${sCourse.name} (${sCourse.año})` : 'Sin grupo'}</p>
+                                                            {age && <span className="text-[11px] text-outline">·</span>}
+                                                            {age && <p className="text-[11px] text-primary font-bold">{age} años</p>}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <Button variant="outline" size="sm" onClick={() => handleAddExisting(student)}>
-                                                    Agregar
-                                                </Button>
+                                                <div className={`w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${
+                                                    isSelected ? 'bg-primary border-primary' : 'border-outline-variant bg-surface'
+                                                }`}>
+                                                    {isSelected && <span className="material-symbols-outlined text-[14px] text-on-primary">check</span>}
+                                                </div>
                                             </div>
                                         );
                                     })
@@ -238,9 +318,22 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
                 <div className="p-6 pt-2 border-t border-outline-variant mt-auto bg-surface-container-lowest">
                     <div className="flex gap-3">
                         <Button type="button" variant="ghost" className="flex-1" onClick={onClose}>Cancelar</Button>
-                        {mode === 'new' && (
+                        {mode === 'new' ? (
                             <Button type="submit" form="new-student-form" variant="primary" className="flex-1">
                                 {initialData ? 'Guardar Cambios' : 'Crear Alumno'}
+                            </Button>
+                        ) : (
+                            <Button 
+                                variant="primary" 
+                                className="flex-1" 
+                                disabled={selectedStudents.length === 0}
+                                onClick={handleAddSelected}
+                            >
+                                <span className="material-symbols-outlined text-[18px]">person_add</span>
+                                {selectedStudents.length > 0 
+                                    ? `Agregar ${selectedStudents.length} alumno${selectedStudents.length !== 1 ? 's' : ''}`
+                                    : 'Seleccionar Alumnos'
+                                }
                             </Button>
                         )}
                     </div>

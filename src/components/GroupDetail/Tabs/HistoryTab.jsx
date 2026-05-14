@@ -6,9 +6,22 @@ const HistoryTab = ({ groupId }) => {
     const allLessons = useAppStore(state => state.lessons);
     const allEvaluations = useAppStore(state => state.evaluations);
     const allStudents = useAppStore(state => state.students);
+    const deleteLesson = useAppStore(state => state.deleteLesson);
+    const deleteEvaluation = useAppStore(state => state.deleteEvaluation);
     
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalType, setModalType] = useState(null); // 'lesson' | 'evaluation'
+
+    const handleDelete = async (item) => {
+        if (!confirm('¿Seguro que quieres eliminar este registro? Esta acción no se puede deshacer.')) return;
+        
+        if (item.itemType === 'lesson') {
+            await deleteLesson(item.id);
+        } else {
+            await deleteEvaluation(item.id);
+        }
+        setSelectedItem(null);
+    };
 
     const students = useMemo(() => 
         allStudents.filter(s => String(s.course_id) === String(groupId)),
@@ -103,6 +116,13 @@ const HistoryTab = ({ groupId }) => {
                                             {item.type} · {item.weight}%
                                         </Badge>
                                     )}
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleDelete(item); }}
+                                        className="w-8 h-8 rounded-full hover:bg-error/10 text-outline hover:text-error flex items-center justify-center transition-all"
+                                        title="Eliminar registro"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
                                 </div>
                             </div>
                             
@@ -142,6 +162,15 @@ const HistoryTab = ({ groupId }) => {
                 onClose={() => setSelectedItem(null)}
                 title={modalType === 'lesson' ? 'Detalle de Clase' : 'Resultados de Evaluación'}
                 size="lg"
+                footer={
+                    <div className="flex justify-between w-full">
+                        <Button variant="ghost" className="text-error" onClick={() => handleDelete(selectedItem)}>
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                            Eliminar Registro
+                        </Button>
+                        <Button variant="outline" onClick={() => setSelectedItem(null)}>Cerrar</Button>
+                    </div>
+                }
             >
                 {selectedItem && (
                     <div className="space-y-6">
