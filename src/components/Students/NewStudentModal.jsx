@@ -45,7 +45,6 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
     const validate = () => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'El nombre es obligatorio';
-        if (!formData.birthdate) newErrors.birthdate = 'La fecha de nacimiento es obligatoria';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -103,7 +102,7 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Fecha de Nacimiento *</label>
+                        <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Fecha de Nacimiento</label>
                         <input
                             type="date"
                             className={`w-full px-4 py-2.5 bg-surface border rounded-xl text-sm focus:outline-none transition-all ${
@@ -117,7 +116,7 @@ const NewStudentModal = ({ isOpen, onClose, initialData = null, forceGroupId = n
 
                     {/* Group */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Grupo (Opcional)</label>
+                        <label className="text-xs font-bold text-outline uppercase tracking-wider px-1">Grupo</label>
                         <select
                             className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
                             value={formData.course_id}

@@ -301,7 +301,7 @@ const ClassDetail = () => {
                     <section className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-6">
                         <h2 className="text-xs font-bold text-outline uppercase tracking-wider mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined text-[16px]">folder</span>
-                            Recursos Adjuntos
+                            Recursos y Materiales
                         </h2>
                         {editing ? (
                             <FileUploader files={form.attachedDocuments} onChange={files => handleChange('attachedDocuments', files)} label="" maxFiles={10} />
@@ -309,17 +309,38 @@ const ClassDetail = () => {
                             <div className="space-y-2">
                                 {cls.attachedDocuments.map((doc, idx) => {
                                     const ft = fileTypeIcons[doc.type] || fileTypeIcons.other;
+                                    const isFile = doc.resourceType === 'file' || !doc.resourceType;
+                                    const isLink = doc.resourceType === 'link';
+                                    const isText = doc.resourceType === 'text';
+
+                                    const handleAction = () => {
+                                        if (isLink) {
+                                            window.open(doc.url, '_blank', 'noopener,noreferrer');
+                                        } else if (isText) {
+                                            alert(doc.content); // Simple alert for now, could be a modal
+                                        } else if (isFile && doc.data) {
+                                            const link = document.createElement('a');
+                                            link.href = doc.data;
+                                            link.download = doc.name;
+                                            link.click();
+                                        }
+                                    };
+
                                     return (
-                                        <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container/30 hover:bg-surface-container/50 transition-colors">
+                                        <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container/30 hover:bg-surface-container/50 transition-colors group">
                                             <div className={`w-10 h-10 rounded-lg ${tc.bg} flex items-center justify-center`}>
                                                 <span className={`material-symbols-outlined text-[22px] ${ft.color}`}>{ft.icon}</span>
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-on-surface truncate">{doc.name}</p>
-                                                <p className="text-[11px] text-outline">{doc.size}</p>
+                                                <p className="text-[11px] text-outline">
+                                                    {isLink ? doc.url : isText ? 'Material de texto' : doc.size}
+                                                </p>
                                             </div>
-                                            <Button variant="ghost" size="sm">
-                                                <span className="material-symbols-outlined text-[16px]">download</span>
+                                            <Button variant="ghost" size="sm" onClick={handleAction}>
+                                                <span className="material-symbols-outlined text-[18px]">
+                                                    {isLink ? 'open_in_new' : isText ? 'visibility' : 'download'}
+                                                </span>
                                             </Button>
                                         </div>
                                     );

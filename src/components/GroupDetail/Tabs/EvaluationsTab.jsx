@@ -2,6 +2,28 @@ import React, { useMemo, useState } from 'react';
 import { Button, Badge, EmptyState } from '../../Shared';
 import { useAppStore } from '../../../store/useAppStore';
 
+const getEvalStatus = (ev) => {
+    if (ev.status === 'graded') return 'graded';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const evalDate = new Date(ev.date);
+    evalDate.setHours(0, 0, 0, 0);
+    if (evalDate >= today) return 'pendiente';
+    return 'subir_correcciones';
+};
+
+const statusLabels = {
+    graded: 'Calificado',
+    pendiente: 'Pendiente',
+    subir_correcciones: 'Subir Correcciones',
+};
+
+const statusVariants = {
+    graded: 'success',
+    pendiente: 'neutral',
+    subir_correcciones: 'warning',
+};
+
 const EvaluationsTab = ({ groupId }) => {
     const allEvaluations = useAppStore(state => state.evaluations);
     const allStudents = useAppStore(state => state.students);
@@ -15,9 +37,10 @@ const EvaluationsTab = ({ groupId }) => {
     const coursePlans = useAppStore(state => state.coursePlans);
     const group = useAppStore(state => state.courses.find(c => String(c.id) === String(groupId)));
     const markClassCompleted = useAppStore(state => state.markClassCompleted);
+    const addCalendarEvent = useAppStore(state => state.addCalendarEvent);
 
     const [isCreating, setIsCreating] = useState(false);
-    const [selectedEval, setSelectedEval] = useState(null); // For grading mode
+    const [selectedEval, setSelectedEval] = useState(null);
     const [linkedClassId, setLinkedClassId] = useState('');
     
     const [formData, setFormData] = useState({
@@ -58,7 +81,7 @@ const EvaluationsTab = ({ groupId }) => {
             setFormData(prev => ({
                 ...prev,
                 title: cls.title,
-                type: 'Parcial' // Default to parcial but user can change
+                type: 'Parcial'
             }));
         }
     };
@@ -75,6 +98,22 @@ const EvaluationsTab = ({ groupId }) => {
         };
         await addEvaluation(newEval);
 
+        // Auto-create calendar event for future evaluations
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const evalDate = new Date(formData.date);
+        evalDate.setHours(0, 0, 0, 0);
+        if (evalDate >= today) {
+            await addCalendarEvent({
+                id: `cal-eval-${newEval.id}`,
+                title: `${formData.type}: ${formData.title}`,
+                date: formData.date,
+                type: 'evaluation',
+                description: `${formData.type} para ${group?.name || 'grupo'}. Peso: ${formData.weight}%`,
+                color: '#E65100',
+            });
+        }
+
         if (linkedClassId) {
             await markClassCompleted(group.id, linkedClassId);
         }
@@ -84,18 +123,14 @@ const EvaluationsTab = ({ groupId }) => {
         setFormData({ title: '', type: 'Parcial', date: new Date().toISOString().split('T')[0], weight: 20 });
     };
 
-
     const handleGradeChange = (evalId, studentId, score) => {
         let numericScore = parseFloat(score);
         if (isNaN(numericScore)) {
             updateStudentGrade(evalId, studentId, { score: 0 });
             return;
         }
-        
-        // Cap at 12 and floor at 0
         if (numericScore > 12) numericScore = 12;
         if (numericScore < 0) numericScore = 0;
-        
         updateStudentGrade(evalId, studentId, { score: numericScore });
     };
 
@@ -181,9 +216,8 @@ const EvaluationsTab = ({ groupId }) => {
                             onChange={e => setFormData({ ...formData, date: e.target.value })}
                         />
                     </div>
-                    <Button type="submit" variant="primary" className="w-full mt-4">Crear y Comenzar a Calificar</Button>
+                    <Button type="submit" variant="primary" className="w-full mt-4">Crear Evaluación</Button>
                 </form>
-
             </div>
         );
     }
@@ -265,35 +299,40 @@ const EvaluationsTab = ({ groupId }) => {
                 />
             ) : (
                 <div className="grid grid-cols-1 gap-3">
-                    {evaluations.map(ev => (
-                        <div key={ev.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl border border-outline-variant bg-surface-container-lowest hover:shadow-md transition-all group">
-                            <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                    ev.status === 'graded' ? 'bg-success-container text-on-success-container' : 'bg-warning-container text-on-warning-container'
-                                }`}>
-                                    <span className="material-symbols-outlined text-[24px]">
-                                        {ev.type === 'Examen' ? 'history_edu' : ev.type === 'Tarea Oral' ? 'record_voice_over' : 'assignment'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors">{ev.title}</h3>
-                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-                                        <span className="text-xs text-secondary">{ev.type} · Peso: <span className="font-bold">{ev.weight}%</span></span>
-                                        <Badge variant={ev.status === 'graded' ? 'success' : 'warning'}>
-                                            {ev.status === 'graded' ? 'Calificado' : 'Pendiente'}
-                                        </Badge>
+                    {evaluations.map(ev => {
+                        const dynStatus = getEvalStatus(ev);
+                        return (
+                            <div key={ev.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl border border-outline-variant bg-surface-container-lowest hover:shadow-md transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                        dynStatus === 'graded' ? 'bg-success-container text-on-success-container' 
+                                        : dynStatus === 'subir_correcciones' ? 'bg-warning-container text-on-warning-container'
+                                        : 'bg-surface-container text-on-surface-variant'
+                                    }`}>
+                                        <span className="material-symbols-outlined text-[24px]">
+                                            {ev.type === 'Examen' ? 'history_edu' : ev.type === 'Tarea Oral' ? 'record_voice_over' : 'assignment'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors">{ev.title}</h3>
+                                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                                            <span className="text-xs text-secondary">{ev.type} · Peso: <span className="font-bold">{ev.weight}%</span> · {ev.date}</span>
+                                            <Badge variant={statusVariants[dynStatus]}>
+                                                {statusLabels[dynStatus]}
+                                            </Badge>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="flex items-center gap-3 ml-auto sm:ml-0">
-                                <Button variant="outline" size="sm" onClick={() => setSelectedEval(ev.id)}>
-                                    <span className="material-symbols-outlined text-[18px]">edit_document</span>
-                                    {ev.status === 'graded' ? 'Editar Notas' : 'Cargar Notas'}
-                                </Button>
+                                <div className="flex items-center gap-3 ml-auto sm:ml-0">
+                                    <Button variant="outline" size="sm" onClick={() => setSelectedEval(ev.id)}>
+                                        <span className="material-symbols-outlined text-[18px]">edit_document</span>
+                                        {dynStatus === 'graded' ? 'Editar Notas' : dynStatus === 'subir_correcciones' ? 'Subir Correcciones' : 'Ver Evaluación'}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

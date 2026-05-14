@@ -16,8 +16,8 @@ const CourseCard = ({ course, onDuplicate, onDelete, onShare }) => {
     const dropdownItems = [
         { icon: 'open_in_new', label: 'Abrir curso', onClick: () => navigate(`/planning/${course.id}`) },
         course.publishedToMarketplace
-            ? { icon: 'storefront', label: 'Ya publicado en el Mercado', onClick: () => {}, disabled: true }
-            : { icon: 'share', label: 'Compartir al Mercado', onClick: () => onShare?.(course.id) },
+            ? { icon: 'forum', label: 'Ya publicado en el Foro', onClick: () => {}, disabled: true }
+            : { icon: 'share', label: 'Compartir al Foro', onClick: () => onShare?.(course.id) },
         { icon: 'content_copy', label: 'Duplicar', onClick: () => onDuplicate(course.id) },
         { separator: true },
         { icon: 'edit', label: 'Editar', onClick: () => navigate(`/planning/${course.id}`) },
@@ -48,8 +48,8 @@ const CourseCard = ({ course, onDuplicate, onDelete, onShare }) => {
                     <Badge variant={status.variant}>{status.label}</Badge>
                     {course.publishedToMarketplace && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-bold text-tertiary bg-tertiary-container px-2 py-0.5 rounded-full">
-                            <span className="material-symbols-outlined text-[12px]">storefront</span>
-                            Mercado
+                            <span className="material-symbols-outlined text-[12px]">forum</span>
+                            Foro
                         </span>
                     )}
                 </div>

@@ -86,7 +86,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
         <div className="w-12 h-12 border-4 border-outline-variant border-t-primary rounded-full animate-spin"></div>
-        <p className="mt-4 text-on-surface-variant font-medium">Cargando Academic Clarity...</p>
+        <p className="mt-4 text-on-surface-variant font-medium">Cargando EducaAmigo...</p>
       </div>
     );
   }

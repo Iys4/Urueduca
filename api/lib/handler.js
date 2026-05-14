@@ -46,12 +46,20 @@ export async function handleCrud(req, res, Model) {
 
     case 'PUT':
         try {
-            const updatedItem = await Model.findOneAndUpdate(
-                { id: id, userId: userId },
-                req.body,
-                { new: true }
-            );
-            res.status(200).json(updatedItem);
+            const doc = await Model.findOne(userId ? { id: id, userId: userId } : { id: id });
+            if (!doc) {
+                return res.status(404).json({ success: false, error: 'Document not found' });
+            }
+            const body = req.body;
+            Object.keys(body).forEach(key => {
+                doc[key] = body[key];
+                // Mark Mixed/nested fields as modified so Mongoose persists them
+                if (Array.isArray(body[key]) || (typeof body[key] === 'object' && body[key] !== null)) {
+                    doc.markModified(key);
+                }
+            });
+            await doc.save();
+            res.status(200).json(doc);
         } catch (error) {
             res.status(400).json({ success: false, error: error.message });
         }

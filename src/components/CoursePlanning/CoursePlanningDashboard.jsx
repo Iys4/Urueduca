@@ -9,7 +9,7 @@ import { useAppStore } from '../../store/useAppStore';
 
 const TABS = [
     { key: 'own',         label: 'Mis planificaciones', icon: 'person'        },
-    { key: 'marketplace', label: 'Mercado',              icon: 'storefront'    },
+    { key: 'marketplace', label: 'Foro',                 icon: 'forum'         },
 ];
 
 const CoursePlanningDashboard = () => {
@@ -88,7 +88,7 @@ const CoursePlanningDashboard = () => {
                 <div>
                     <h1 className="text-2xl font-bold text-on-surface tracking-tight">Planificaciones</h1>
                     <p className="text-sm text-on-surface-variant mt-0.5">
-                        Tus cursos reutilizables y el mercado compartido
+                        Tus cursos reutilizables y el foro compartido
                     </p>
                 </div>
                 {activeTab === 'own' && (
@@ -182,7 +182,7 @@ const CoursePlanningDashboard = () => {
                         <EmptyState
                             icon="auto_stories"
                             title="Aún no tenés planificaciones"
-                            description="Creá una nueva o explorá el Mercado para clonar una planificación de otro profe."
+                            description="Creá una nueva o explorá el Foro para clonar una planificación de otro profe."
                             action={
                                 <div className="flex gap-3">
                                     <Button variant="primary" onClick={() => setShowCreateModal(true)}>
@@ -190,8 +190,8 @@ const CoursePlanningDashboard = () => {
                                         Crear planificación
                                     </Button>
                                     <Button variant="outline" onClick={() => setActiveTab('marketplace')}>
-                                        <span className="material-symbols-outlined text-[18px]">storefront</span>
-                                        Ver Mercado
+                                        <span className="material-symbols-outlined text-[18px]">forum</span>
+                                        Ver Foro
                                     </Button>
                                 </div>
                             }
@@ -204,16 +204,16 @@ const CoursePlanningDashboard = () => {
             {activeTab === 'marketplace' && (
                 <div className="space-y-4">
                     <div className="flex items-center gap-3 p-4 bg-primary-container/30 border border-primary/20 rounded-xl">
-                        <span className="material-symbols-outlined text-[24px] text-primary">storefront</span>
+                        <span className="material-symbols-outlined text-[24px] text-primary">forum</span>
                         <p className="text-sm text-on-surface-variant">
-                            Clases individuales y recursos pedagógicos compartidos por otros profesores. Clonalos y editalos libremente.
+                            Recursos pedagógicos compartidos por otros profesores. Clonalos y editalos libremente.
                         </p>
                     </div>
 
                     <SearchInput
                         value={mpSearch}
                         onChange={setMpSearch}
-                        placeholder="Buscar en el mercado..."
+                        placeholder="Buscar en el foro..."
                         className="max-w-md"
                     />
 
@@ -234,8 +234,8 @@ const CoursePlanningDashboard = () => {
                         </div>
                     ) : (
                         <EmptyState
-                            icon="storefront"
-                            title="Mercado vacío"
+                            icon="forum"
+                            title="Foro vacío"
                             description="Aún no hay planificaciones publicadas. ¡Sé el primero en compartir la tuya!"
                         />
                     )}

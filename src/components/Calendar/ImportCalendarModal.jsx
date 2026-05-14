@@ -58,7 +58,7 @@ const ImportCalendarModal = ({ isOpen, onClose }) => {
         >
             {step === 1 && (
                 <div className="space-y-4">
-                    <p className="text-sm text-on-surface-variant">Seleccioná la fuente desde la que querés importar tus eventos para centralizarlos en Academic Clarity.</p>
+                    <p className="text-sm text-on-surface-variant">Seleccioná la fuente desde la que querés importar tus eventos para centralizarlos en EducaAmigo.</p>
                     
                     <div className="space-y-2">
                         <button onClick={() => handleSelectSource('google')} className="w-full flex items-center gap-4 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest hover:bg-surface-container hover:border-primary transition-all group text-left">
@@ -98,7 +98,7 @@ const ImportCalendarModal = ({ isOpen, onClose }) => {
                     <div>
                         <h3 className="text-lg font-bold text-on-surface">Conectando con {importSource === 'ics' ? 'Archivo' : importSource === 'google' ? 'Google' : 'Outlook'}</h3>
                         <p className="text-sm text-on-surface-variant mt-2 max-w-xs mx-auto">
-                            Al conectar, Academic Clarity importará tus eventos futuros para que puedas ver todo en un solo lugar.
+                            Al conectar, EducaAmigo importará tus eventos futuros para que puedas ver todo en un solo lugar.
                         </p>
                     </div>
                 </div>

@@ -67,7 +67,7 @@ const Register = () => {
             <div className="max-w-md w-full bg-surface p-8 rounded-2xl shadow-xl border border-outline-variant">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-primary mb-2">Crear Cuenta</h1>
-                    <p className="text-on-surface-variant">Únete a Academic Clarity</p>
+                    <p className="text-on-surface-variant">Únete a EducaAmigo</p>
                 </div>
 
                 {(validationErrors.length > 0 || storeError) && (

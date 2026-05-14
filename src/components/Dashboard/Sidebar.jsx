@@ -40,7 +40,7 @@ const Sidebar = ({ user }) => {
                             <span className="material-symbols-outlined text-on-primary text-[18px]">school</span>
                         </div>
                         <div>
-                            <h1 className="text-[15px] font-bold text-on-surface tracking-tight leading-none">Academic Clarity</h1>
+                            <h1 className="text-[15px] font-bold text-on-surface tracking-tight leading-none">EducaAmigo</h1>
                             <p className="text-[10px] text-outline mt-0.5 uppercase tracking-widest font-semibold">Portal Docente</p>
                         </div>
                     </div>

@@ -18,10 +18,6 @@ const Header = () => {
                 <button className="w-9 h-9 rounded-lg hover:bg-surface-container flex items-center justify-center text-outline transition-colors focus-ring">
                     <span className="material-symbols-outlined text-[20px]">help_outline</span>
                 </button>
-                <button className="w-9 h-9 rounded-lg hover:bg-surface-container flex items-center justify-center text-outline transition-colors relative focus-ring">
-                    <span className="material-symbols-outlined text-[20px]">notifications</span>
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface-container-lowest"></span>
-                </button>
             </div>
         </header>
     );

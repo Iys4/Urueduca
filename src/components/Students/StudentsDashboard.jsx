@@ -111,7 +111,7 @@ const StudentsDashboard = () => {
                                             </Badge>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-secondary hidden sm:table-cell">
-                                            {calculateAge(student.birthdate)} años
+                                            {student.birthdate ? `${calculateAge(student.birthdate)} años` : '-'}
                                         </td>
                                         <td className="px-6 py-4 hidden md:table-cell">
                                             <div className="flex items-center gap-1.5">

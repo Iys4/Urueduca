@@ -31,7 +31,7 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
             <div className="max-w-md w-full bg-surface p-8 rounded-2xl shadow-xl border border-outline-variant">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-primary mb-2">Academic Clarity</h1>
+                    <h1 className="text-3xl font-bold text-primary mb-2">EducaAmigo</h1>
                     <p className="text-on-surface-variant">Inicia sesión para continuar</p>
                 </div>
 
