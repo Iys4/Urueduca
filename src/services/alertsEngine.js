@@ -72,26 +72,6 @@ export const alertsEngine = {
                 );
             }
 
-            // ALERTA TIPO 4: Evaluación próxima sin rúbrica (próximos 7 días)
-            courseEvaluations.forEach(evalu => {
-                if (evalu.date > today) {
-                    const evalDate = new Date(evalu.date);
-                    const todayDate = new Date(today);
-                    const diffDays = (evalDate - todayDate) / (1000 * 60 * 60 * 24);
-                    
-                    if (diffDays <= 7 && !evalu.rubric) {
-                        addAlert(
-                            'rubric',
-                            `Evaluación "${evalu.title}" en ${Math.ceil(diffDays)} días sin rúbrica configurada`,
-                            'medium',
-                            'Configurar',
-                            course.id,
-                            'format_list_bulleted',
-                            { evalId: evalu.id }
-                        );
-                    }
-                }
-            });
         });
 
         // Ordenar: high primero, luego medium

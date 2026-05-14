@@ -29,9 +29,7 @@ export const dashboardService = {
         
         // Find first lesson that hasn't ended yet
         const upcoming = todayLessons.find(l => (l.end_time || '23:59') > currentTime);
-        if (upcoming) return upcoming;
-        // If all ended, return null
-        return todayLessons.length > 0 ? todayLessons[0] : null;
+        return upcoming || null;
     },
 
     getCoursesSummary: (userId = 1) => {
@@ -180,30 +178,55 @@ export const dashboardService = {
     getUpcomingEvents: (userId = 1) => {
         const state = useAppStore.getState();
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const nextWeek = new Date(today);
         nextWeek.setDate(today.getDate() + 7);
 
         const events = [];
+        const userCourses = state.courses.filter(c => c.userId === userId);
+        const courseIds = new Set(userCourses.map(c => c.id));
 
-        // 1. Next Class
-        const todayLessons = dashboardService.getTodayLessons(userId);
+        // 1. Next Class (Logged or Scheduled for today/future)
         const nextClass = dashboardService.getNextClass(userId);
         if (nextClass) {
             events.push({
                 type: 'class',
-                title: nextClass.courseName,
-                subtitle: `${nextClass.start_time} - ${nextClass.end_time}`,
+                title: nextClass.courseName || nextClass.title,
+                subtitle: `Hoy ${nextClass.start_time} - ${nextClass.end_time}`,
                 date: new Date(),
                 icon: 'school',
                 color: 'text-primary'
             });
         }
 
-        // 2. Upcoming Birthdays (next 7 days)
-        const userCourses = state.courses.filter(c => c.userId === userId);
-        const courseIds = new Set(userCourses.map(c => c.id));
+        // 2. Weekly Scheduled Classes (Next 7 days, excluding today if already handled)
+        userCourses.forEach(course => {
+            if (course.schedule && Array.isArray(course.schedule)) {
+                course.schedule.forEach(sched => {
+                    const dayIndex = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'].indexOf(sched.day);
+                    if (dayIndex === -1) return;
+
+                    // Check next 7 days (starting from tomorrow to avoid duplication with getNextClass)
+                    for (let i = 1; i <= 7; i++) {
+                        const d = new Date(today);
+                        d.setDate(today.getDate() + i);
+                        if (d.getDay() === dayIndex) {
+                            events.push({
+                                type: 'class',
+                                title: `${course.name}: Clase semanal`,
+                                subtitle: `${sched.day} ${sched.startTime} - ${sched.endTime}`,
+                                date: new Date(d),
+                                icon: 'calendar_today',
+                                color: 'text-primary'
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // 3. Upcoming Birthdays (next 7 days)
         const students = state.students.filter(s => courseIds.has(s.course_id) && s.birthdate);
-        
         students.forEach(s => {
             const bDate = new Date(s.birthdate);
             const bThisYear = new Date(today.getFullYear(), bDate.getMonth(), bDate.getDate());
@@ -219,16 +242,18 @@ export const dashboardService = {
             }
         });
 
-        // 3. Next Exam (next 7 days)
-        const evals = state.evaluations.filter(e => courseIds.has(e.course_id) && e.status === 'upcoming');
+        // 4. Next Exam/Evaluation (next 7 days)
+        // Fix: Check status correctly (not just 'upcoming')
+        const evals = state.evaluations.filter(e => courseIds.has(e.course_id) && e.status !== 'graded');
         evals.forEach(e => {
             const eDate = new Date(e.date);
+            eDate.setHours(0,0,0,0);
             if (eDate >= today && eDate <= nextWeek) {
-                const courseName = state.courses.find(c => c.id === e.course_id)?.name || 'Grupo';
+                const course = userCourses.find(c => String(c.id) === String(e.course_id));
                 events.push({
                     type: 'exam',
-                    title: `${e.type} en ${courseName}`,
-                    subtitle: eDate.toLocaleDateString('es-UY', { day: 'numeric', month: 'short' }),
+                    title: `${e.type}: ${e.title}`,
+                    subtitle: `${course?.name || 'Grupo'} · ${eDate.toLocaleDateString('es-UY', { day: 'numeric', month: 'short' })}`,
                     date: eDate,
                     icon: 'assignment',
                     color: 'text-error'
@@ -236,7 +261,7 @@ export const dashboardService = {
             }
         });
 
-        // 4. Holidays (Static List for Uruguay)
+        // 5. Holidays (next 7 days)
         const currentYear = today.getFullYear();
         const holidays = [
             { date: new Date(currentYear, 0, 1), name: "Año Nuevo" },

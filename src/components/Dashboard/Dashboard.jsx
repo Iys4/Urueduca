@@ -5,29 +5,20 @@ import CoursesSummary from './CoursesSummary';
 import UpcomingEventsWidget from './UpcomingEventsWidget';
 import QuickStats from './QuickStats';
 import { dashboardService } from '../../services/dashboardService';
+import { useAppStore } from '../../store/useAppStore';
 
 const Dashboard = ({ user }) => {
-    const [data, setData] = useState(null);
+    // Subscribe to store changes to make dashboard dynamic
+    const store = useAppStore();
+    
+    // We compute the data on each render (or use memo if needed)
+    // Since these are simple lookups/filters, it's efficient enough
+    const nextClass = dashboardService.getNextClass(user.id);
+    const alerts = dashboardService.getPendingAlerts(user.id);
+    const courses = dashboardService.getCoursesSummary(user.id);
+    const upcomingEvents = dashboardService.getUpcomingEvents(user.id);
+    const stats = dashboardService.getQuickStats(user.id);
 
-    useEffect(() => {
-        const nextClass = dashboardService.getNextClass(user.id);
-        const alerts = dashboardService.getPendingAlerts(user.id);
-        const courses = dashboardService.getCoursesSummary(user.id);
-        const todayLessons = dashboardService.getTodayLessons(user.id);
-        const upcomingEvents = dashboardService.getUpcomingEvents(user.id);
-        const stats = dashboardService.getQuickStats(user.id);
-        setData({ nextClass, alerts, courses, todayLessons, upcomingEvents, stats });
-    }, [user.id]);
-
-    if (!data) return (
-        <div className="space-y-6">
-            <div className="skeleton h-8 w-64" />
-            <div className="skeleton h-40 w-full" />
-            <div className="skeleton h-60 w-full" />
-        </div>
-    );
-
-    const { nextClass, alerts, courses, upcomingEvents, stats } = data;
     const dateString = new Date().toLocaleDateString('es-UY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     return (

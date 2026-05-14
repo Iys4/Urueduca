@@ -198,27 +198,51 @@ export const mockDb = {
     marketplace: [
         {
             id: 'mp-bio-res-1',
-            nombre: 'Práctica: Extracción de ADN',
-            descripcion: 'Guía completa para realizar una extracción casera de ADN usando frutillas y alcohol. Ideal para introducir genética.',
+            nombre: 'Práctica: Extracción de ADN en Frutillas',
+            descripcion: 'Guía paso a paso para realizar una extracción casera de ADN. Incluye lista de materiales y cuestionario post-laboratorio.',
             materia: 'Biología',
-            grado: '5°',
-            metodologia: 'Aprendizaje Basado en Proyectos (ABP)',
-            actividades: 'Laboratorio práctico, Informe en grupos',
-            author: 'Ana García',
+            grado: '5° Año',
+            metodologia: 'Aprendizaje Basado en la Experimentación',
+            actividades: 'Laboratorio guiado, Informe de resultados',
+            author: 'Prof. Ana García',
             rating: 4.8,
             createdAt: '2026-04-10'
         },
         {
             id: 'mp-bio-res-2',
-            nombre: 'Debate: Evolución vs Creacionismo',
-            descripcion: 'Material y roles asignados para organizar un debate sobre las teorías del origen de las especies.',
+            nombre: 'Debate: Dilemas Éticos de la Edición Genética',
+            descripcion: 'Material de lectura y roles asignados para organizar un debate sobre CRISPR y bioética en el aula.',
             materia: 'Biología',
-            grado: '5°',
-            metodologia: 'Juego de roles, Debate estructurado',
-            actividades: 'Preparación de argumentos, Debate oral, Reflexión escrita',
-            author: 'Carlos Biólogo',
+            grado: '6° Año',
+            metodologia: 'Debate Estructurado',
+            actividades: 'Lectura crítica, Debate oral, Reflexión escrita',
+            author: 'Lic. Carlos Rodríguez',
             rating: 4.5,
             createdAt: '2026-04-15'
+        },
+        {
+            id: 'mp-mat-res-1',
+            nombre: 'Geometría Analítica: Elipse y sus aplicaciones',
+            descripcion: 'Secuencia didáctica para enseñar cónicas usando GeoGebra y ejemplos de la vida real (órbitas planetarias).',
+            materia: 'Matemática',
+            grado: '6° Año',
+            metodologia: 'Aprendizaje Visual',
+            actividades: 'Simulación en GeoGebra, Resolución de problemas',
+            author: 'Ing. Mateo Sosa',
+            rating: 4.9,
+            createdAt: '2026-05-01'
+        },
+        {
+            id: 'mp-his-res-1',
+            nombre: 'La Revolución Industrial en el Río de la Plata',
+            descripcion: 'Análisis comparativo del impacto de la industrialización europea en las colonias del sur. Incluye fuentes primarias.',
+            materia: 'Historia',
+            grado: '4° Año',
+            metodologia: 'Análisis de Fuentes',
+            actividades: 'Análisis de documentos históricos, Mapa conceptual',
+            author: 'Mag. Sofía Castro',
+            rating: 4.7,
+            createdAt: '2026-05-05'
         }
     ],
 

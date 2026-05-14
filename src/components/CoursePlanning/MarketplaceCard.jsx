@@ -35,9 +35,9 @@ const MarketplaceCard = ({ cls, onClone, alreadyCloned }) => {
                     <span className="material-symbols-outlined text-[22px]">{icon}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wider opacity-70 leading-none mb-1">{cls.planNombre || 'Planificación'}</p>
-                    <h3 className="font-bold text-sm leading-tight line-clamp-2">{cls.title}</h3>
-                    <p className="text-[11px] opacity-80 mt-1">{cls.materia} · {cls.año}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider opacity-70 leading-none mb-1">{cls.materia || 'Recurso'}</p>
+                    <h3 className="font-bold text-sm leading-tight line-clamp-2">{cls.nombre || cls.title || 'Clase sin título'}</h3>
+                    <p className="text-[11px] opacity-80 mt-1">{cls.grado || cls.año || 'Año no especificado'}</p>
                 </div>
             </div>
 
@@ -68,7 +68,7 @@ const MarketplaceCard = ({ cls, onClone, alreadyCloned }) => {
                     <div className="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center shrink-0">
                         <span className="material-symbols-outlined text-[14px] text-on-primary-container">person</span>
                     </div>
-                    <span className="text-[11px] text-outline truncate">{cls.ownerName || 'Anónimo'}</span>
+                    <span className="text-[11px] text-outline truncate">{cls.author || cls.ownerName || 'Anónimo'}</span>
                     <span className="text-[11px] text-outline ml-auto shrink-0">{cls.updatedAtRelative}</span>
                 </div>
 

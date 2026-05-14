@@ -174,18 +174,18 @@ export const coursePlanService = {
         
         // Extract available filters BEFORE filtering
         const availableMaterias = [...new Set(items.map(p => p.materia).filter(Boolean))].sort();
-        const availableAños = [...new Set(items.map(p => p.año).filter(Boolean))].sort();
+        const availableAños = [...new Set(items.map(p => p.grado || p.año).filter(Boolean))].sort();
 
         if (filters.search) {
             const q = filters.search.toLowerCase();
             items = items.filter(p =>
-                (p.title || '').toLowerCase().includes(q) ||
+                (p.title || p.nombre || '').toLowerCase().includes(q) ||
                 (p.materia || '').toLowerCase().includes(q) ||
                 (p.planNombre || '').toLowerCase().includes(q)
             );
         }
         if (filters.materia) items = items.filter(p => p.materia === filters.materia);
-        if (filters.año)     items = items.filter(p => p.año === filters.año);
+        if (filters.año)     items = items.filter(p => (p.grado || p.año) === filters.año);
 
         const enrichedItems = items.map(p => ({
             ...p,
